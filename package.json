@@ -1,0 +1,14 @@
+{
+  "name": "json-to-scatter-matrix",
+  "version": "1.0.0",
+  "description": "transoform json test data to scatter matrix ",
+  "main": "index.js",
+  "scripts": {
+    "test": "tst"
+  },
+  "author": "Filip Kantardjioski",
+  "license": "ISC",
+  "devDependencies": {
+    "d3": "^7.1.1"
+  }
+}
