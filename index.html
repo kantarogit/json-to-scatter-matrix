@@ -48,9 +48,9 @@
   <script src="//d3js.org/d3.v5.min.js"></script>
   <script>
 
-    var width = 960,
+    var width = 1080,
       //size of the cell
-      size = 230,
+      size = 250,
       //distance between cells
       padding = 20;
 
@@ -65,18 +65,16 @@
     // bottom ticks, 6 columns per cell
     var xAxis = d3.axisBottom()
       .scale(x)
-      // .orient("bottom")
       .ticks(6);
 
     //left ticks, 6 rows per cell
     var yAxis = d3.axisLeft()
       .scale(y)
-      // .orient("left")
       .ticks(6);
 
     var color = d3.scaleOrdinal(d3.schemeCategory10);
 
-    d3.csv("flowers.csv", processRow).then(processData)
+    d3.csv("flowers.csv", processRow).then(processData);
 
     function processRow(row, index, columnKeys) {
       row[columnKeys[0]] = row[columnKeys[0]].trim().toLowerCase()
@@ -92,16 +90,14 @@
       console.log("number of traits: " + n);
 
       traits.forEach(function (trait) {
-        //print column name
         console.log("trait: " + trait);
         // find min and max for each column. d[trait] is the value
         domainByTrait[trait] = d3.extent(data, function (d) {
           return d[trait];
         });
       });
-      //print min max for each column
-      console.log(domainByTrait);
 
+      console.log(domainByTrait);
 
       xAxis.tickSize(size * n);
       yAxis.tickSize(-size * n);
@@ -112,10 +108,7 @@
         .on("brush", brushmove)
         .on("end", brushend);
 
-      // g.call(brush);
-
       let brushCell;
-
 
       // Clear the previously-active brush, if any.
       function brushstart(p) {
@@ -127,7 +120,6 @@
           brushCell = this;
         }
       }
-
 
       // Highlight the selected circles.
       function brushmove(p) {
@@ -142,7 +134,6 @@
 
       // If the brush is empty, select all circles.
       function brushend() {
-        // if (brush.empty()) svg.selectAll(".hidden").classed("hidden", false);
         if (d3.event.selection === null) svg.selectAll(".hidden").classed("hidden", false);
       }
 
@@ -173,14 +164,22 @@
         .attr("transform", function (d) { return "translate(" + (n - d.i - 1) * size + "," + d.j * size + ")"; })
         .each(plot);
 
+      cell.call(brush);
+
       // Titles for the diagonal.
-      cell.filter(function (d) { return d.i === d.j; }).append("text")
+      cell.filter(function (d) {
+        return d.i === d.j;
+      })
+        .append("text")
         .attr("x", padding)
         .attr("y", padding)
         .attr("dy", ".71em")
-        .text(function (d) { return d.x; });
+        .text(function (d) {
+          console.log(d.x);
+          return d.x;
+        })
 
-      cell.call(brush);
+
 
       function plot(p) {
         var cell = d3.select(this);
