@@ -42,9 +42,51 @@
     fill-opacity: .125;
     stroke: #fff;
   }
+
+  .slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 25px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+  }
+
+  .slider:hover {
+    opacity: 1;
+  }
+
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    background: #04AA6D;
+    cursor: pointer;
+  }
+
+  .slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    background: #04AA6D;
+    cursor: pointer;
+  }
 </style>
 
 <body>
+  <div class="slidecontainer">
+    <input type="range" min="1" max="10" value="1" class="slider" id="myRange">
+    <p>Value: <span id="demo"></span></p>
+  </div>
+
+  <script>
+    var slider = document.getElementById("myRange");
+    slider.oninput = function () {
+      sliderCall(this.value);
+    }
+  </script>
   <script src="//d3js.org/d3.v5.min.js"></script>
   <script>
 
@@ -57,6 +99,8 @@
     // defines, x-axis for each cell
     var x = d3.scaleLinear()
       .range([padding / 2, size - padding / 2]);
+
+    // console.log(x);
 
     // defines, y-axis for each cell
     var y = d3.scaleLinear()
@@ -74,30 +118,44 @@
 
     var color = d3.scaleOrdinal(d3.schemeCategory10);
 
-    d3.csv("flowers.csv", processRow).then(processData);
+
+    function sliderCall(index) {
+      console.log("inside slider");
+      console.log(index);
+      switch (index) {
+        case '1': return d3.csv("flowers.csv", processRow).then(processData);
+        case '2': return d3.csv("flowers2.csv", processRow).then(processData);
+      }
+    }
+
+
 
     function processRow(row, index, columnKeys) {
+
       row[columnKeys[0]] = row[columnKeys[0]].trim().toLowerCase()
       return row;
     }
 
     function processData(data) {
+
+      console.log("next is data:");
+      console.log(data);
       var domainByTrait = {};
       var traits = d3.keys(data[0]).filter(function (d) {
         return d !== "species";
       });
       var n = traits.length;
-      console.log("number of traits: " + n);
+      // console.log("number of traits: " + n);
 
       traits.forEach(function (trait) {
-        console.log("trait: " + trait);
+        // console.log("trait: " + trait);
         // find min and max for each column. d[trait] is the value
         domainByTrait[trait] = d3.extent(data, function (d) {
           return d[trait];
         });
       });
 
-      console.log(domainByTrait);
+      // console.log(domainByTrait);
 
       xAxis.tickSize(size * n);
       yAxis.tickSize(-size * n);
@@ -113,7 +171,8 @@
       // Clear the previously-active brush, if any.
       function brushstart(p) {
         if (brushCell !== this) {
-          console.log("brushstart started");
+          // console.log("brushstart started");
+          // console.log(p);
           d3.select(brushCell).call(brush.move, null);
           x.domain(domainByTrait[p.x]);
           y.domain(domainByTrait[p.y]);
@@ -137,12 +196,27 @@
         if (d3.event.selection === null) svg.selectAll(".hidden").classed("hidden", false);
       }
 
+      //clear svg after data source change
+      var svg = d3.selectAll("svg");
+
+      if (svg) {
+        svg.remove();
+      }
+
       var svg = d3.select("body").append("svg")
         .attr("width", size * n + padding)
         .attr("height", size * n + padding)
         .append("g")
         .attr("transform", "translate(" + padding + "," + padding / 2 + ")");
 
+      console.log("next is traits:");
+
+      console.log(traits);
+
+
+      console.log("next is domain by trait:");
+
+      console.log(domainByTrait);
       svg.selectAll(".x.axis")
         .data(traits)
         .enter().append("g")
@@ -164,6 +238,7 @@
         .attr("transform", function (d) { return "translate(" + (n - d.i - 1) * size + "," + d.j * size + ")"; })
         .each(plot);
 
+      // console.log(cell);
       cell.call(brush);
 
       // Titles for the diagonal.
@@ -175,11 +250,9 @@
         .attr("y", padding)
         .attr("dy", ".71em")
         .text(function (d) {
-          console.log(d.x);
+          // console.log(d.x);
           return d.x;
-        })
-
-
+        });
 
       function plot(p) {
         var cell = d3.select(this);
@@ -209,5 +282,8 @@
       for (i = -1; ++i < n;) for (j = -1; ++j < m;) c.push({ x: a[i], i: i, y: b[j], j: j });
       return c;
     }
-
   </script>
+</body>
+</meta>
+
+</html>
