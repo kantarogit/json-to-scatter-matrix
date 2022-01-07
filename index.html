@@ -88,7 +88,7 @@
       sliderCall(this.value);
     }
   </script>
-  <script src="//d3js.org/d3.v5.min.js"></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
   <script>
 
     var width = 1080,
@@ -133,7 +133,7 @@
     function processData(data) {
 
       var domainByTrait = {};
-      var traits = d3.keys(data[0]).filter(function (d) {
+      var traits = Object.keys(data[0]).filter(function (d) {
         return d !== "species";
       });
       var n = traits.length;
@@ -157,7 +157,7 @@
       let brushCell;
 
       // Clear the previously-active brush, if any.
-      function brushstart(p) {
+      function brushstart(event, p) {
         if (brushCell !== this) {
           d3.select(brushCell).call(brush.move, null);
           x.domain(domainByTrait[p.x]);
@@ -167,9 +167,10 @@
       }
 
       // Highlight the selected circles.
-      function brushmove(p) {
-        if (d3.event.selection) {
-          var e = d3.event.selection;
+      function brushmove(event, p) {
+        const selection = event.selection;
+        if (selection != null) {
+          var e = selection;
           svg.selectAll("circle").classed("hidden", function (d) {
             return x.invert(e[0][0]) > d[p.x] || x.invert(e[1][0]) < d[p.x]
               || y.invert(e[0][1]) < d[p.y] || y.invert(e[1][1]) > d[p.y];
@@ -178,8 +179,8 @@
       }
 
       // If the brush is empty, select all circles.
-      function brushend() {
-        if (d3.event.selection === null) svg.selectAll(".hidden").classed("hidden", false);
+      function brushend(event) {
+        if (event.selection === null) svg.selectAll(".hidden").classed("hidden", false);
       }
 
       //clear svg after data source change
@@ -246,6 +247,7 @@
         cell.selectAll("circle")
           .data(data)
           .enter().append("circle")
+          .transition().duration(800)
           .attr("cx", function (d) { return x(d[p.x]); })
           .attr("cy", function (d) { return y(d[p.y]); })
           .attr("r", 4)
