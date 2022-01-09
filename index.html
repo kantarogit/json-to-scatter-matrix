@@ -133,8 +133,10 @@
     function processData(data) {
 
       var domainByTrait = {};
+
       var traits = Object.keys(data[0]).filter(function (d) {
-        return d !== "species";
+        return d !== "species" 
+        //&& d !== "id";
       });
       var n = traits.length;
 
@@ -208,7 +210,8 @@
         .enter().append("g")
         .attr("class", "y axis")
         .attr("transform", function (d, i) { return "translate(0," + i * size + ")"; })
-        .each(function (d) { y.domain(domainByTrait[d]); d3.select(this).call(yAxis); });
+        //.transition().duration(3000) aftr d3.select(this)
+        .each(function (d) { y.domain(domainByTrait[d]); d3.select(this).call(yAxis);});
 
       var cell = svg.selectAll(".cell")
         .data(cross(traits, traits))
@@ -219,6 +222,7 @@
 
       cell.call(brush);
 
+      // todo invert indexes on column names
       svg.append("g")
         .style("font", "bold 10px sans-serif")
         .style("pointer-events", "none")
@@ -232,10 +236,12 @@
         .text(d => d);
 
       function plot(p) {
+
         var cell = d3.select(this);
 
         x.domain(domainByTrait[p.x]);
         y.domain(domainByTrait[p.y]);
+
 
         cell.append("rect")
           .attr("class", "frame")
@@ -247,11 +253,12 @@
         cell.selectAll("circle")
           .data(data)
           .enter().append("circle")
-          .transition().duration(800)
           .attr("cx", function (d) { return x(d[p.x]); })
-          .attr("cy", function (d) { return y(d[p.y]); })
           .attr("r", 4)
-          .style("fill", function (d) { return color(d.species); });
+          .attr("id", function(d) {return d.id;})
+          .style("fill", function (d) { return color(d.species); })
+          .transition().duration(500).ease(d3.easeSinInOut)
+          .attr("cy", function (d) { return y(d[p.y]);});
       }
     }
 
@@ -260,6 +267,9 @@
       for (i = -1; ++i < n;) for (j = -1; ++j < m;) c.push({ x: a[i], i: i, y: b[j], j: j });
       return c;
     }
+
+    //initial state
+    d3.csv("flowers.csv", processRow).then(processData);
   </script>
 </body>
 </meta>
