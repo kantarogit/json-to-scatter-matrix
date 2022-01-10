@@ -135,7 +135,7 @@
       var domainByTrait = {};
 
       var traits = Object.keys(data[0]).filter(function (d) {
-        return d !== "species" 
+        return d !== "species"
         //&& d !== "id";
       });
       var n = traits.length;
@@ -186,57 +186,102 @@
       }
 
       //clear svg after data source change
-      var svg = d3.selectAll("svg");
+      var svg = d3.selectAll("circle");
+      // console.log(svg.size())
 
-      if (svg) {
-        svg.remove();
+      if (svg.size()) {
+        var circles = d3.selectAll("circle");
+
+
+
+        circles.remove();
+
+        var p = cross(traits, traits);
+
+
+        // console.log(currentCell.data.x);
+
+
+        // .filter(function (c) {
+        //   return c.attr("xcoordinate") === pos.i 
+        //   // && d3.select(this).attr("ycoordinate") === pos.j;
+        // });
+
+        p.forEach((pos) => {
+
+          var currentCell = d3.selectAll(".cell[xcoordinate='" + pos.i + "']" + "[ycoordinate='" + pos.j + "']");
+
+          x.domain(domainByTrait[pos.x]);
+          y.domain(domainByTrait[pos.y]);
+
+
+          d3.select(".x.axis").call(xAxis);
+          d3.select(".y.axis").call(yAxis);
+
+          currentCell.selectAll("circle")
+            .data(data)
+            .enter().append("circle")
+            .attr("cx", function (d) { return x(d[pos.x]); })
+            .attr("r", 4)
+            .attr("id", function (d) { return d.id; })
+            .style("fill", function (d) { return color(d.species); })
+            .transition().duration(500).ease(d3.easeSinInOut)
+            .attr("cy", function (d) { return y(d[pos.y]); });
+        });
+      } else {
+
+        var svg = d3.select("body").append("svg")
+          .attr("width", size * n + padding)
+          .attr("height", size * n + padding)
+          .append("g")
+          .attr("transform", "translate(" + padding + "," + padding / 2 + ")");
+
+        svg.selectAll(".x.axis")
+          .data(traits)
+          .enter().append("g")
+          .attr("class", "x axis")
+          .attr("transform", function (d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
+          .each(function (d) { x.domain(domainByTrait[d]); d3.select(this).call(xAxis); });
+
+        svg.selectAll(".y.axis")
+          .data(traits)
+          .enter().append("g")
+          .attr("class", "y axis")
+          .attr("transform", function (d, i) { return "translate(0," + i * size + ")"; })
+          //.transition().duration(3000) aftr d3.select(this)
+          .each(function (d) { y.domain(domainByTrait[d]); d3.select(this).call(yAxis); });
+
+        var cell = svg.selectAll(".cell")
+          .data(cross(traits, traits))
+          .enter().append("g")
+          .attr("class", "cell")
+          .attr("transform", function (d) { return "translate(" + (n - d.i - 1) * size + "," + d.j * size + ")"; })
+          .attr("xcoordinate", function (d) { return d.i; })
+          .attr("ycoordinate", function (d) { return d.j; })
+          .each(plot);
+
+        cell.call(brush);
+
+        // todo invert indexes on column names
+        svg.append("g")
+          .style("font", "bold 10px sans-serif")
+          .style("pointer-events", "none")
+          .selectAll("text")
+          .data(traits)
+          .join("text")
+          .attr("transform", (d, i) => `translate(${i * size},${i * size})`)
+          .attr("x", padding)
+          .attr("y", padding)
+          .attr("dy", ".71em")
+          .text(d => d);
+
       }
-
-      var svg = d3.select("body").append("svg")
-        .attr("width", size * n + padding)
-        .attr("height", size * n + padding)
-        .append("g")
-        .attr("transform", "translate(" + padding + "," + padding / 2 + ")");
-
-      svg.selectAll(".x.axis")
-        .data(traits)
-        .enter().append("g")
-        .attr("class", "x axis")
-        .attr("transform", function (d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
-        .each(function (d) { x.domain(domainByTrait[d]); d3.select(this).call(xAxis); });
-
-      svg.selectAll(".y.axis")
-        .data(traits)
-        .enter().append("g")
-        .attr("class", "y axis")
-        .attr("transform", function (d, i) { return "translate(0," + i * size + ")"; })
-        //.transition().duration(3000) aftr d3.select(this)
-        .each(function (d) { y.domain(domainByTrait[d]); d3.select(this).call(yAxis);});
-
-      var cell = svg.selectAll(".cell")
-        .data(cross(traits, traits))
-        .enter().append("g")
-        .attr("class", "cell")
-        .attr("transform", function (d) { return "translate(" + (n - d.i - 1) * size + "," + d.j * size + ")"; })
-        .each(plot);
-
-      cell.call(brush);
-
-      // todo invert indexes on column names
-      svg.append("g")
-        .style("font", "bold 10px sans-serif")
-        .style("pointer-events", "none")
-        .selectAll("text")
-        .data(traits)
-        .join("text")
-        .attr("transform", (d, i) => `translate(${i * size},${i * size})`)
-        .attr("x", padding)
-        .attr("y", padding)
-        .attr("dy", ".71em")
-        .text(d => d);
 
       function plot(p) {
 
+
+
+        // console.log(p)
         var cell = d3.select(this);
 
         x.domain(domainByTrait[p.x]);
@@ -255,10 +300,10 @@
           .enter().append("circle")
           .attr("cx", function (d) { return x(d[p.x]); })
           .attr("r", 4)
-          .attr("id", function(d) {return d.id;})
+          .attr("id", function (d) { return d.id; })
           .style("fill", function (d) { return color(d.species); })
           .transition().duration(500).ease(d3.easeSinInOut)
-          .attr("cy", function (d) { return y(d[p.y]);});
+          .attr("cy", function (d) { return y(d[p.y]); });
       }
     }
 
