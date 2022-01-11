@@ -187,25 +187,12 @@
 
       //clear svg after data source change
       var svg = d3.selectAll("circle");
-      // console.log(svg.size())
 
       if (svg.size()) {
         var circles = d3.selectAll("circle");
-
-
-
-        circles.remove();
+        // circles.remove();
 
         var p = cross(traits, traits);
-
-
-        // console.log(currentCell.data.x);
-
-
-        // .filter(function (c) {
-        //   return c.attr("xcoordinate") === pos.i 
-        //   // && d3.select(this).attr("ycoordinate") === pos.j;
-        // });
 
         p.forEach((pos) => {
 
@@ -214,20 +201,63 @@
           x.domain(domainByTrait[pos.x]);
           y.domain(domainByTrait[pos.y]);
 
-
           d3.select(".x.axis").call(xAxis);
           d3.select(".y.axis").call(yAxis);
 
+
+          //add new circles
           currentCell.selectAll("circle")
             .data(data)
-            .enter().append("circle")
-            .attr("cx", function (d) { return x(d[pos.x]); })
+            .enter()
+            .append("circle")
+            .attr("cx", function (d) {
+              // console.log(x(d[p.x]));
+              // console.log(d[p.x]);
+              return x(d[pos.x]);
+            })
+            .attr("id", function (d) { return d.id; })
+            .attr("cy", function (d) { return y(d[pos.y]); })
+            .style("fill", function (d) { return color(d.species); })
+            .style("opacity", 100);
+
+          //update circles
+          currentCell.selectAll("circle")
+            .data(data)
+            .transition()
+            .duration(1000)
+            .on("start", function () {
+              d3.select(this)  // 'this' means the current element
+                .attr("fill", "red")  // Change color
+                .attr("r", 6);  // Change size
+            })
+            .attr("cx", function (d) {
+              // console.log(x(d[pos.x]));
+              // console.log(d[pos.x]);
+              return x(d[pos.x]);
+            })
             .attr("r", 4)
             .attr("id", function (d) { return d.id; })
             .style("fill", function (d) { return color(d.species); })
-            .transition().duration(500).ease(d3.easeSinInOut)
-            .attr("cy", function (d) { return y(d[pos.y]); });
+            .attr("cy", function (d) { return y(d[pos.y]); })
+            .on("end", function () {  // End animation
+              d3.select(this)  // 'this' means the current element
+                .transition()
+                .duration(1000)
+                .attr("fill", "black")  // Change color
+                .attr("r", 4);  // Change radius
+            });
+
+          //remove not needed
+          currentCell.selectAll("circle")
+            .data(data)
+            .exit()
+            .transition() // and apply changes to all of them
+            .duration(1000)
+            .style("opacity", 0)
+            .remove();
+
         });
+
       } else {
 
         var svg = d3.select("body").append("svg")
@@ -248,7 +278,6 @@
           .enter().append("g")
           .attr("class", "y axis")
           .attr("transform", function (d, i) { return "translate(0," + i * size + ")"; })
-          //.transition().duration(3000) aftr d3.select(this)
           .each(function (d) { y.domain(domainByTrait[d]); d3.select(this).call(yAxis); });
 
         var cell = svg.selectAll(".cell")
@@ -279,14 +308,11 @@
 
       function plot(p) {
 
-
-
-        // console.log(p)
+        // console.log(p.x)
         var cell = d3.select(this);
 
         x.domain(domainByTrait[p.x]);
         y.domain(domainByTrait[p.y]);
-
 
         cell.append("rect")
           .attr("class", "frame")
@@ -298,11 +324,14 @@
         cell.selectAll("circle")
           .data(data)
           .enter().append("circle")
-          .attr("cx", function (d) { return x(d[p.x]); })
+          .attr("cx", function (d) {
+            // console.log(x(d[p.x]));
+            // console.log(d[p.x]);
+            return x(d[p.x]);
+          })
           .attr("r", 4)
           .attr("id", function (d) { return d.id; })
           .style("fill", function (d) { return color(d.species); })
-          .transition().duration(500).ease(d3.easeSinInOut)
           .attr("cy", function (d) { return y(d[p.y]); });
       }
     }
