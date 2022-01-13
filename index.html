@@ -205,56 +205,111 @@
           d3.select(".y.axis").call(yAxis);
 
 
-          //add new circles
-          currentCell.selectAll("circle")
-            .data(data)
-            .enter()
-            .append("circle")
-            .attr("cx", function (d) {
-              // console.log(x(d[p.x]));
-              // console.log(d[p.x]);
-              return x(d[pos.x]);
-            })
-            .attr("id", function (d) { return d.id; })
-            .attr("cy", function (d) { return y(d[pos.y]); })
-            .style("fill", function (d) { return color(d.species); })
-            .style("opacity", 100);
 
-          //update circles
           currentCell.selectAll("circle")
             .data(data)
-            .transition()
-            .duration(1000)
-            .on("start", function () {
-              d3.select(this)  // 'this' means the current element
-                .attr("fill", "red")  // Change color
-                .attr("r", 6);  // Change size
-            })
-            .attr("cx", function (d) {
-              // console.log(x(d[pos.x]));
-              // console.log(d[pos.x]);
-              return x(d[pos.x]);
-            })
-            .attr("r", 4)
-            .attr("id", function (d) { return d.id; })
-            .style("fill", function (d) { return color(d.species); })
-            .attr("cy", function (d) { return y(d[pos.y]); })
-            .on("end", function () {  // End animation
-              d3.select(this)  // 'this' means the current element
+            .join(
+              enter => enter
+                .append("circle")
+                .attr("cx", function (d) {
+                  // // console.log(x(d[p.x]));
+                  // // console.log(d[p.x]);
+                  // console.log("enter enter enter");
+                  return x(d[pos.x]);
+                })
+                .attr("id", function (d) { return d.id; })
+                .attr("cy", function (d) { return y(d[pos.y]); })
+                .style("fill", function (d) { return color(d.species); })
+                .attr("r", 4)
+                .style("opacity", 0)
+                .transition().duration(1000)
+                .style('opacity', 1)
+                .selection(),
+
+              update => update
                 .transition()
                 .duration(1000)
-                .attr("fill", "black")  // Change color
-                .attr("r", 4);  // Change radius
-            });
+                .on("start", function () {
+                  d3.select(this)  // 'this' means the current element
+                    .attr("fill", "red")  // Change color
+                    .attr("r", 6);  // Change size
+                })
+                .attr("cx", function (d) {
+                  // console.log(x(d[pos.x]));
+                  // console.log(d[pos.x]);
+                  return x(d[pos.x]);
+                })
+                .attr("r", 4)
+                .attr("id", function (d) { return d.id; })
+                .style("fill", function (d) { return color(d.species); })
+                .attr("cy", function (d) { return y(d[pos.y]); })
+                .on("end", function () {  // End animation
+                  d3.select(this)  // 'this' means the current element
+                    .transition()
+                    .duration(1000)
+                    .attr("fill", "black")  // Change color
+                    .attr("r", 4);
+                })
+                .selection(),
 
-          //remove not needed
-          currentCell.selectAll("circle")
-            .data(data)
-            .exit()
-            .transition() // and apply changes to all of them
-            .duration(1000)
-            .style("opacity", 0)
-            .remove();
+              exit => exit
+                .transition() // and apply changes to all of them
+                .duration(1000)
+                .style("opacity", 0)
+                .remove()
+            );
+
+
+          // //add new circles
+          // currentCell.selectAll("circle")
+          //   .data(data)
+          //   .enter()
+          //   .append("circle")
+          //   .attr("cx", function (d) {
+          //     // console.log(x(d[p.x]));
+          //     // console.log(d[p.x]);
+          //     return x(d[pos.x]);
+          //   })
+          //   .attr("id", function (d) { return d.id; })
+          //   .attr("cy", function (d) { return y(d[pos.y]); })
+          //   .style("fill", function (d) { return color(d.species); })
+          //   .style("opacity", 100);
+
+          // //update circles
+          // currentCell.selectAll("circle")
+          //   .data(data)
+          //   .transition()
+          //   .duration(1000)
+          //   .on("start", function () {
+          //     d3.select(this)  // 'this' means the current element
+          //       .attr("fill", "red")  // Change color
+          //       .attr("r", 6);  // Change size
+          //   })
+          //   .attr("cx", function (d) {
+          //     // console.log(x(d[pos.x]));
+          //     // console.log(d[pos.x]);
+          //     return x(d[pos.x]);
+          //   })
+          //   .attr("r", 4)
+          //   .attr("id", function (d) { return d.id; })
+          //   .style("fill", function (d) { return color(d.species); })
+          //   .attr("cy", function (d) { return y(d[pos.y]); })
+          //   .on("end", function () {  // End animation
+          //     d3.select(this)  // 'this' means the current element
+          //       .transition()
+          //       .duration(1000)
+          //       .attr("fill", "black")  // Change color
+          //       .attr("r", 4);  // Change radius
+          //   });
+
+          // //remove not needed
+          // currentCell.selectAll("circle")
+          //   .data(data)
+          //   .exit()
+          //   .transition() // and apply changes to all of them
+          //   .duration(1000)
+          //   .style("opacity", 0)
+          //   .remove();
 
         });
 
@@ -325,8 +380,6 @@
           .data(data)
           .enter().append("circle")
           .attr("cx", function (d) {
-            // console.log(x(d[p.x]));
-            // console.log(d[p.x]);
             return x(d[p.x]);
           })
           .attr("r", 4)
