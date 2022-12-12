@@ -85,6 +85,7 @@
   <script>
     var slider = document.getElementById("myRange");
     slider.oninput = function () {
+      console.log(this.value);
       sliderCall(this.value);
     }
   </script>
@@ -147,6 +148,9 @@
         });
       });
 
+      //values for dataset are correct
+      console.log(domainByTrait);
+
       xAxis.tickSize(size * n);
       yAxis.tickSize(-size * n);
 
@@ -194,17 +198,43 @@
 
         var p = cross(traits, traits);
 
+
+        svg.selectAll(".x.axis")
+          .data(traits)
+          .enter().append("g")
+          .attr("class", "x axis")
+          .attr("transform", function (d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
+          .each(function (d) {
+            x.domain(domainByTrait[d]); d3.select(this).call(xAxis);
+          });
+
+        svg.selectAll(".y.axis")
+          .data(traits)
+          .enter().append("g")
+          .attr("class", "y axis")
+          .attr("transform", function (d, i) { return "translate(0," + i * size + ")"; })
+          .each(function (d) {
+            y.domain(domainByTrait[d]); d3.select(this).call(yAxis);
+          });
+
+
+        // traits.forEach((trait) => {
+        //   console.log(trait);
+        //   console.log(domainByTrait[trait]);
+
+          
+        // })
+
         p.forEach((pos) => {
+          console.log(pos);
 
           var currentCell = d3.selectAll(".cell[xcoordinate='" + pos.i + "']" + "[ycoordinate='" + pos.j + "']");
+     
+          // x.domain(domainByTrait[pos.x]);
+          // y.domain(domainByTrait[pos.y]);
 
-          x.domain(domainByTrait[pos.x]);
-          y.domain(domainByTrait[pos.y]);
-
-          d3.select(".x.axis").call(xAxis);
-          d3.select(".y.axis").call(yAxis);
-
-
+          // d3.select(".x.axis").call(xAxis);
+          // d3.select(".y.axis").call(yAxis);
 
           currentCell.selectAll("circle")
             .data(data)
@@ -212,9 +242,6 @@
               enter => enter
                 .append("circle")
                 .attr("cx", function (d) {
-                  // // console.log(x(d[p.x]));
-                  // // console.log(d[p.x]);
-                  // console.log("enter enter enter");
                   return x(d[pos.x]);
                 })
                 .attr("id", function (d) { return d.id; })
@@ -223,7 +250,7 @@
                 .attr("r", 4)
                 .style("opacity", 0)
                 .transition().duration(1000)
-                .style('opacity', 1)
+                .style("opacity", 1)
                 .selection(),
 
               update => update
@@ -235,8 +262,6 @@
                     .attr("r", 6);  // Change size
                 })
                 .attr("cx", function (d) {
-                  // console.log(x(d[pos.x]));
-                  // console.log(d[pos.x]);
                   return x(d[pos.x]);
                 })
                 .attr("r", 4)
@@ -258,59 +283,6 @@
                 .style("opacity", 0)
                 .remove()
             );
-
-
-          // //add new circles
-          // currentCell.selectAll("circle")
-          //   .data(data)
-          //   .enter()
-          //   .append("circle")
-          //   .attr("cx", function (d) {
-          //     // console.log(x(d[p.x]));
-          //     // console.log(d[p.x]);
-          //     return x(d[pos.x]);
-          //   })
-          //   .attr("id", function (d) { return d.id; })
-          //   .attr("cy", function (d) { return y(d[pos.y]); })
-          //   .style("fill", function (d) { return color(d.species); })
-          //   .style("opacity", 100);
-
-          // //update circles
-          // currentCell.selectAll("circle")
-          //   .data(data)
-          //   .transition()
-          //   .duration(1000)
-          //   .on("start", function () {
-          //     d3.select(this)  // 'this' means the current element
-          //       .attr("fill", "red")  // Change color
-          //       .attr("r", 6);  // Change size
-          //   })
-          //   .attr("cx", function (d) {
-          //     // console.log(x(d[pos.x]));
-          //     // console.log(d[pos.x]);
-          //     return x(d[pos.x]);
-          //   })
-          //   .attr("r", 4)
-          //   .attr("id", function (d) { return d.id; })
-          //   .style("fill", function (d) { return color(d.species); })
-          //   .attr("cy", function (d) { return y(d[pos.y]); })
-          //   .on("end", function () {  // End animation
-          //     d3.select(this)  // 'this' means the current element
-          //       .transition()
-          //       .duration(1000)
-          //       .attr("fill", "black")  // Change color
-          //       .attr("r", 4);  // Change radius
-          //   });
-
-          // //remove not needed
-          // currentCell.selectAll("circle")
-          //   .data(data)
-          //   .exit()
-          //   .transition() // and apply changes to all of them
-          //   .duration(1000)
-          //   .style("opacity", 0)
-          //   .remove();
-
         });
 
       } else {
@@ -326,14 +298,21 @@
           .enter().append("g")
           .attr("class", "x axis")
           .attr("transform", function (d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
-          .each(function (d) { x.domain(domainByTrait[d]); d3.select(this).call(xAxis); });
+          .each(function (d) {
+            console.log("xaxis");
+            console.log(domainByTrait[d]);
+            console.log(d);
+            x.domain(domainByTrait[d]); d3.select(this).call(xAxis);
+          });
 
         svg.selectAll(".y.axis")
           .data(traits)
           .enter().append("g")
           .attr("class", "y axis")
           .attr("transform", function (d, i) { return "translate(0," + i * size + ")"; })
-          .each(function (d) { y.domain(domainByTrait[d]); d3.select(this).call(yAxis); });
+          .each(function (d) {
+            y.domain(domainByTrait[d]); d3.select(this).call(yAxis);
+          });
 
         var cell = svg.selectAll(".cell")
           .data(cross(traits, traits))
@@ -358,12 +337,10 @@
           .attr("y", padding)
           .attr("dy", ".71em")
           .text(d => d);
-
       }
 
       function plot(p) {
 
-        // console.log(p.x)
         var cell = d3.select(this);
 
         x.domain(domainByTrait[p.x]);
