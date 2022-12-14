@@ -85,7 +85,6 @@
   <script>
     var slider = document.getElementById("myRange");
     slider.oninput = function () {
-      console.log(this.value);
       sliderCall(this.value);
     }
   </script>
@@ -190,51 +189,65 @@
       }
 
       //clear svg after data source change
-      var svg = d3.selectAll("circle");
+      var svg = d3.select("svg");
+      console.log('esvege');
+      console.log(svg);
+
 
       if (svg.size()) {
         var circles = d3.selectAll("circle");
+
         // circles.remove();
 
         var p = cross(traits, traits);
 
+        // svg.selectAll(".x.axis")
+        //   .data(traits)
+        //   .enter().append("g")
+        //   .attr("class", "x axis")
+        //   .attr("transform", function (d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
+        //   .each(function (d) {
+        //     x.domain(domainByTrait[d]); d3.select(this).call(xAxis);
+        //   });
 
-        svg.selectAll(".x.axis")
+        // svg.selectAll(".y.axis")
+        //   .data(traits)
+        //   .enter().append("g")
+        //   .attr("class", "y axis")
+        //   .attr("transform", function (d, i) { return "translate(0," + i * size + ")"; })
+        //   .each(function (d) {
+        //     y.domain(domainByTrait[d]); d3.select(this).call(yAxis);
+        //   });
+
+         svg.selectAll(".x.axis")
           .data(traits)
-          .enter().append("g")
+          .join(
+            update => update
+          .append("g")
           .attr("class", "x axis")
           .attr("transform", function (d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
           .each(function (d) {
             x.domain(domainByTrait[d]); d3.select(this).call(xAxis);
-          });
+          })
+        )
 
         svg.selectAll(".y.axis")
           .data(traits)
-          .enter().append("g")
+          .join(
+            update => update
+          .append("g")
           .attr("class", "y axis")
           .attr("transform", function (d, i) { return "translate(0," + i * size + ")"; })
           .each(function (d) {
             y.domain(domainByTrait[d]); d3.select(this).call(yAxis);
-          });
+          })
+        )
 
-
-        // traits.forEach((trait) => {
-        //   console.log(trait);
-        //   console.log(domainByTrait[trait]);
-
-          
-        // })
 
         p.forEach((pos) => {
           console.log(pos);
 
           var currentCell = d3.selectAll(".cell[xcoordinate='" + pos.i + "']" + "[ycoordinate='" + pos.j + "']");
-     
-          // x.domain(domainByTrait[pos.x]);
-          // y.domain(domainByTrait[pos.y]);
-
-          // d3.select(".x.axis").call(xAxis);
-          // d3.select(".y.axis").call(yAxis);
 
           currentCell.selectAll("circle")
             .data(data)
@@ -286,6 +299,8 @@
         });
 
       } else {
+        //initialy goes here
+        console.log('elseeeot');
 
         var svg = d3.select("body").append("svg")
           .attr("width", size * n + padding)
@@ -299,9 +314,6 @@
           .attr("class", "x axis")
           .attr("transform", function (d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
           .each(function (d) {
-            console.log("xaxis");
-            console.log(domainByTrait[d]);
-            console.log(d);
             x.domain(domainByTrait[d]); d3.select(this).call(xAxis);
           });
 
