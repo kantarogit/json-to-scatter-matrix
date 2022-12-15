@@ -189,22 +189,24 @@
       }
 
       //clear svg after data source change
-      var svg = d3.select("svg");
+      var svgOld = d3.select("svg");
       console.log('esvege');
       console.log(svg);
 
 
-      if (svg.size()) {
+      // if (svg.size()) {
 
-        svg.remove();
-      }
+      //   svg.remove();
+      // }
 
-        svg = d3.select("body").append("svg")
+        var svg = d3.select("body").append("svg")
           .attr("width", size * n + padding)
           .attr("height", size * n + padding)
           .append("g")
           .attr("transform", "translate(" + padding + "," + padding / 2 + ")");
-        var circles = d3.selectAll("circle");
+
+          svgOld.remove();
+        // var circles = d3.selectAll("circle");
 
         // circles.remove();
 
@@ -260,6 +262,8 @@
 
           var currentCell = d3.selectAll(".cell[xcoordinate='" + pos.i + "']" + "[ycoordinate='" + pos.j + "']");
 
+          console.log('all circles');
+          console.log(currentCell.selectAll("circle"));
           currentCell.selectAll("circle")
             .data(data)
             .join(
