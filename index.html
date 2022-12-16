@@ -180,6 +180,9 @@
             return x.invert(e[0][0]) > d[p.x] || x.invert(e[1][0]) < d[p.x]
               || y.invert(e[0][1]) < d[p.y] || y.invert(e[1][1]) > d[p.y];
           });
+          var selectedOnly = svg.selectAll("circle:not(.hidden)");
+          console.log('selected only:');
+          console.log(selectedOnly);
         }
       }
 
