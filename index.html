@@ -296,7 +296,7 @@
                   return x(d[pos.x]);
                 })
                 .attr("r", 4)
-                .attr("id", function (d) { return d.id; })
+                // .attr("id", function (d) { return d.id; })
                 .style("fill", function (d) { return color(d.species); })
                 .attr("cy", function (d) { 
                   y.domain(domainByTrait[pos.y]);
@@ -350,14 +350,26 @@
 
         var cell = svg.selectAll(".cell")
           .data(cross(traits, traits))
-          .enter().append("g")
+          .join(
+          enter => enter
+          .append("g")
           .attr("class", "cell")
           .attr("transform", function (d) { return "translate(" + (n - d.i - 1) * size + "," + d.j * size + ")"; })
           .attr("xcoordinate", function (d) { return d.i; })
           .attr("ycoordinate", function (d) { return d.j; })
-          .each(plot);
+          .each(plot),
+          update => update
+          .attr("class", "cell")
+          .attr("transform", function (d) { return "translate(" + (n - d.i - 1) * size + "," + d.j * size + ")"; })
+          .attr("xcoordinate", function (d) { return d.i; })
+          .attr("ycoordinate", function (d) { return d.j; })
+          );
 
-        cell.call(brush);
+          console.log('calling brush');
+
+        
+          cell.call(brush);
+     
 
         // todo invert indexes on column names
         
@@ -367,7 +379,7 @@
         console.log('plot called');
 
         var cell = d3.select(this);
-
+    
         x.domain(domainByTrait[p.x]);
         y.domain(domainByTrait[p.y]);
 
