@@ -1,0 +1,114 @@
+[
+    {
+        "suite": "adminConfig",
+        "component": "admin-panel",
+        "duration": 4220,
+        "status": "failed",
+        "title": "admin can setup new users"
+    },
+    {
+        "suite": "adminConfig",
+        "component": "admin-panel",
+        "duration": 1559,
+        "status": "failed",
+        "title": "admin can configure credentials"
+    },
+    {
+        "suite": "adminConfig",
+        "component": "admin-panel",
+        "duration": 3665,
+        "status": "passed",
+        "title": "admin can set application theme"
+    },
+    {
+        "suite": "adminConfig",
+        "component": "user-management",
+        "duration": 1379,
+        "status": "failed",
+        "title": "inactive users cannot login"
+    },
+    {
+        "suite": "adminConfig",
+        "component": "user-management",
+        "duration": 3720,
+        "status": "failed",
+        "title": "active users can see history logs"
+    },
+    {
+        "suite": "adminConfig",
+        "component": "user-management",
+        "duration": 3929,
+        "status": "passed",
+        "title": "admin can configure credentials"
+    },
+    {
+        "suite": "adminConfig",
+        "component": "admin-panel",
+        "duration": 120,
+        "status": "failed",
+        "title": "admin can setup new users"
+    },
+    {
+        "suite": "adminConfig",
+        "component": "admin-panel",
+        "duration": 1847,
+        "status": "failed",
+        "title": "admin can configure credentials"
+    },
+    {
+        "suite": "adminConfig",
+        "component": "admin-panel",
+        "duration": 2425,
+        "status": "passed",
+        "title": "admin can set application theme"
+    },
+    {
+        "suite": "adminConfig",
+        "component": "user-management",
+        "duration": 3713,
+        "status": "failed",
+        "title": "inactive users cannot login"
+    },
+    {
+        "suite": "adminConfig",
+        "component": "user-management",
+        "duration": 1064,
+        "status": "failed",
+        "title": "active users can see history logs"
+    },
+    {
+        "suite": "adminConfig",
+        "component": "user-management",
+        "duration": 1282,
+        "status": "passed",
+        "title": "admin can configure credentials"
+    },
+    {
+        "suite": "userPermissions",
+        "component": "access-control",
+        "duration": 3911,
+        "status": "passed",
+        "title": "editor cannot create items"
+    },
+    {
+        "suite": "userPermissions",
+        "component": "access-control",
+        "duration": 4183,
+        "status": "passed",
+        "title": "editor cant review items"
+    },
+    {
+        "suite": "userPermissions",
+        "component": "access-control",
+        "duration": 4754,
+        "status": "passed",
+        "title": "reviewer can review items added in the cart"
+    },
+    {
+        "suite": "userPermissions",
+        "component": "access-control",
+        "duration": 2338,
+        "status": "passed",
+        "title": "reviewer cannot review items not added in the cart"
+    }
+]

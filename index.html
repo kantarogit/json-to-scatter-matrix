@@ -119,26 +119,31 @@
 
     function sliderCall(index) {
       switch (index) {
-        case '1': return d3.csv("flowers.csv", processRow).then(processData);
-        case '2': return d3.csv("flowers2.csv", processRow).then(processData);
+        case '1': return d3.json("data.json").then(processData);
+        // case '1': return d3.csv("flowers.csv", processRow).then(processData);
+        // case '2': return d3.csv("flowers2.csv", processRow).then(processData);
       }
     }
 
     function processRow(row, index, columnKeys) {
+      console.log(row);
 
       row[columnKeys[0]] = row[columnKeys[0]].trim().toLowerCase()
       return row;
     }
 
     function processData(data) {
-
+      console.log(data); // all json points one by one
       var domainByTrait = {};
 
       var traits = Object.keys(data[0]).filter(function (d) {
-        return d !== "species"
+        return d !== "status"
         //&& d !== "id";
       });
       var n = traits.length;
+
+      console.log('traits');
+      console.log(traits);
 
       traits.forEach(function (trait) {
         // find min and max for each column. d[trait] is the value
@@ -146,6 +151,9 @@
           return d[trait];
         });
       });
+
+      console.log('domain by trait');
+      console.log(domainByTrait);
 
       //values for dataset are correct
       // console.log(domainByTrait);
