@@ -97,31 +97,15 @@
       //distance between cells
       padding = 20;
 
-    // defines, x-axis for each cell
-    var x = d3.scaleLinear()
-      .range([padding / 2, size - padding / 2]);
-
-    // defines, y-axis for each cell
-    var y = d3.scaleLinear()
-      .range([size - padding / 2, padding / 2]);
-
-    // bottom ticks, 6 columns per cell
-    var xAxis = d3.axisBottom()
-      .scale(x)
-      .ticks(6);
-
-    //left ticks, 6 rows per cell
-    var yAxis = d3.axisLeft()
-      .scale(y)
-      .ticks(6);
+    
 
     var color = d3.scaleOrdinal(d3.schemeCategory10);
 
     function sliderCall(index) {
       switch (index) {
-        case '1': return d3.json("data.json").then(processData);
-        // case '1': return d3.csv("flowers.csv", processRow).then(processData);
-        // case '2': return d3.csv("flowers2.csv", processRow).then(processData);
+        // case '1': return d3.json("data.json").then(processData);
+        case '1': return d3.csv("flowers.csv", processRow).then(processData);
+        case '2': return d3.csv("flowers2.csv", processRow).then(processData);
       }
     }
 
@@ -133,11 +117,16 @@
     }
 
     function processData(data) {
+      var x;
+      var y;
+
+      
+
       console.log(data); // all json points one by one
       var domainByTrait = {};
 
       var traits = Object.keys(data[0]).filter(function (d) {
-        return d !== "status"
+        return d !== "species"
         //&& d !== "id";
       });
       var n = traits.length;
@@ -158,8 +147,6 @@
       //values for dataset are correct
       // console.log(domainByTrait);
 
-      xAxis.tickSize(size * n);
-      yAxis.tickSize(-size * n);
 
       var brush = d3.brush()
         .extent([[padding / 2, padding / 2], [size - padding / 2, size - padding / 2]])
@@ -202,6 +189,8 @@
       //clear svg after data source change
       var svg = d3.select("svg");
 
+      
+
       if (svg.empty()) {
         console.log('if empty svg');
         var svg = d3.select("body").append("svg")
@@ -237,6 +226,22 @@
           .attr("class", "x axis")
           .attr("transform", function (d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
           .each(function (d) {
+
+        // defines, x-axis for each cell
+            var x = d3.scaleLinear()
+                  .range([padding / 2, size - padding / 2]);
+
+  
+    // bottom ticks, 6 columns per cell
+    var xAxis = d3.axisBottom()
+      .scale(x)
+      .ticks(6);
+
+    
+      xAxis.tickSize(size * n);
+   
+
+
             x.domain(domainByTrait[d]); d3.select(this).transition().call(xAxis);
           }),
             update => update
@@ -258,6 +263,19 @@
             .attr("class", "y axis")
             .attr("transform", function (d, i) { return "translate(0," + i * size + ")"; })
             .each(function (d) {
+
+        // defines, y-axis for each cell
+        var y = d3.scaleLinear()
+      .range([size - padding / 2, padding / 2]);
+
+      //left ticks, 6 rows per cell
+    var yAxis = d3.axisLeft()
+      .scale(y)
+      .ticks(6);
+      
+      yAxis.tickSize(-size * n);
+
+
             y.domain(domainByTrait[d]); d3.select(this).transition().call(yAxis);
           }),
             update => update
@@ -273,6 +291,7 @@
 
 
 
+        if (1>2) {
         p.forEach((pos) => {
 
           var currentCell = d3.selectAll(".cell[xcoordinate='" + pos.i + "']" + "[ycoordinate='" + pos.j + "']");
@@ -329,6 +348,7 @@
                 .remove()
             );
         });
+      }
 
 
        
@@ -390,6 +410,34 @@
         console.log('plot called');
 
         var cell = d3.select(this);
+
+        //
+        console.log('PEEEEEE');
+        console.log(domainByTrait[p.x]);
+        console.log(domainByTrait[p.y]);
+
+ // defines, x-axis for each cell
+ var x = d3.scaleBand()
+                  .range([padding / 2, size - padding / 2]);
+
+  
+    // bottom ticks, 6 columns per cell
+    var xAxis = d3.axisBottom()
+      .scale(x)
+      .ticks(6);
+
+
+       // defines, y-axis for each cell
+       var y = d3.scaleBand()
+      .range([size - padding / 2, padding / 2]);
+
+      //left ticks, 6 rows per cell
+    var yAxis = d3.axisLeft()
+      .scale(y)
+      .ticks(6);
+      
+
+        //
     
         x.domain(domainByTrait[p.x]);
         y.domain(domainByTrait[p.y]);
