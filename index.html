@@ -108,8 +108,6 @@
     }
 
     function processRow(row, index, columnKeys) {
-      console.log(row);
-
       row[columnKeys[0]] = row[columnKeys[0]].trim().toLowerCase()
       return row;
     }
@@ -118,30 +116,29 @@
       var x;
       var y;
 
-      console.log(data); // all json points one by one
       var domainByTrait = {};
 
       var traits = Object.keys(data[0]).filter(function (d) {
-        return d !== "species"
+        return d
+        // !== "species"
         //&& d !== "id";
       });
       var n = traits.length;
 
-      console.log('traits');
-      console.log(traits);
-
       traits.forEach(function (trait) {
-        // find min and max for each column. d[trait] is the value
-        domainByTrait[trait] = d3.extent(data, function (d) {
-          return d[trait];
-        });
+        console.log('domain calc');
+        console.log(trait);
+        if (trait !== 'species') {
+          // find min and max for each column. d[trait] is the value
+          domainByTrait[trait] = d3.extent(data, function (d) {
+            return d[trait];
+          });
+        } else {
+          domainByTrait[trait] = ['setosa', 'versicolor', 'virginica'];
+        }
       });
 
-      console.log('domain by trait');
       console.log(domainByTrait);
-
-      //values for dataset are correct
-      // console.log(domainByTrait);
 
       var brush = d3.brush()
         .extent([[padding / 2, padding / 2], [size - padding / 2, size - padding / 2]])
@@ -171,8 +168,8 @@
               || y.invert(e[0][1]) < d[p.y] || y.invert(e[1][1]) > d[p.y];
           });
           var selectedOnly = svg.selectAll("circle:not(.hidden)");
-          console.log('selected only:');
-          console.log(selectedOnly);
+          // console.log('selected only:');
+          // console.log(selectedOnly);
         }
       }
 
@@ -185,7 +182,6 @@
       var svg = d3.select("svg");
 
       if (svg.empty()) {
-        console.log('if empty svg');
         var svg = d3.select("body").append("svg")
           .attr("width", size * n + padding)
           .attr("height", size * n + padding)
@@ -205,7 +201,11 @@
           .text(d => d);
       }
 
+      console.log('traits');
+      console.log(traits);
       var p = cross(traits, traits);
+
+      console.log(p);
 
       svg.selectAll(".x.axis")
         .data(traits)
@@ -266,7 +266,9 @@
 
       p.forEach((pos) => {
 
+        console.log('each cell');
         var currentCell = d3.selectAll(".cell[xcoordinate='" + pos.i + "']" + "[ycoordinate='" + pos.j + "']");
+        console.log(currentCell);
 
         currentCell.selectAll("circle")
           .data(data)
@@ -278,7 +280,7 @@
               })
               .attr("id", function (d) { return d.id; })
               .attr("cy", function (d) { return y(d[pos.y]); })
-              .style("fill", function (d) { return color(d.species); })
+              .style("fill", function (d) { console.log('init circle'); return color(d.species); })
               .attr("r", 4)
               .style("opacity", 0)
               .transition().duration(1000)
@@ -338,28 +340,34 @@
             .attr("ycoordinate", function (d) { return d.j; })
         );
 
-      console.log('calling brush');
       cell.call(brush);
 
       // todo invert indexes on column names
 
       function plot(p) {
 
-        console.log('plot called');
-
         var cell = d3.select(this);
         // var x;
 
+        //switched p.x with k
         console.log('PEEEEEE');
+        console.log(domainByTrait);
         Object.keys(domainByTrait).forEach(k => {
-          if (k == 'sepal length') {
+          console.log('KATO');
+          console.log(k);
+          if (k === 'species') {
+            console.log('IFOOOOT');
+            console.log(p.x);
+            console.log(domainByTrait[p.x]);
             x = d3.scaleBand()
-              .range([padding / 2, size - padding / 2]);
+              .range([padding / 2, size - padding / 2])
+              .domain(domainByTrait[k])
+              .padding(0.05);
 
             // bottom ticks, 6 columns per cell
             var xAxis = d3.axisBottom()
               .scale(x)
-              .ticks(6);
+              .ticks(4);
 
           } else {
             x = d3.scaleLinear()
@@ -369,21 +377,22 @@
             var xAxis = d3.axisBottom()
               .scale(x)
               .ticks(6);
+
+            x.domain(domainByTrait[k]);
           }
         });
-        console.log('HIKS');
-        console.log(x);
 
-        //
         Object.keys(domainByTrait).forEach(k => {
-          if (k == 'sepal length') {
+          if (k === 'species') {
             y = d3.scaleBand()
-              .range([size - padding / 2, padding / 2]);
+              .range([size - padding / 2, padding / 2])
+              .domain(domainByTrait[k])
+              .padding(0.05);;
 
             // bottom ticks, 6 columns per cell
             var yAxis = d3.axisBottom()
               .scale(y)
-              .ticks(6);
+              .ticks(4);
 
           } else {
             y = d3.scaleLinear()
@@ -393,6 +402,7 @@
             var yAxis = d3.axisLeft()
               .scale(y)
               .ticks(6);
+            y.domain(domainByTrait[k]);
           }
         });
         //
@@ -420,13 +430,30 @@
           .data(data)
           .enter().append("circle")
           .attr("cx", function (d) {
-            return x(d[p.x]);
+            console.log(d);
+            console.log('PEODIX');
+            console.log(p.x);
+            
+            Object.keys(domainByTrait).forEach(k => {})
+
+            if (p.x == 'species') {
+              return x(d.species) + Math.random() * 100;
+            } else {
+              console.log(x(d[p.x]));
+              return x(d[p.x]);
+            }
           })
           .attr("r", 4)
           .attr("id", function (d) { return d.id; })
           .style("fill", function (d) { return color(d.species); })
-          .attr("cy", function (d) { return y(d[p.y]); });
-      }
+          .attr("cy", function (d) {
+            if (p.y == 'species') {
+              return y(d.species) + Math.random() * 100;
+            } else {
+              return y(d[p.y]);
+            }
+      });
+    }
     }
 
     function cross(a, b) {
