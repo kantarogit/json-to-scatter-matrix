@@ -135,8 +135,8 @@
       var domainByTrait = {};
 
       var traits = Object.keys(data[0]).filter(function (d) {
-        return d !== "species"
-        //&& d !== "id";
+        return d !== "status"
+        && d !== "title";
       });
       var n = traits.length;
 
@@ -146,6 +146,20 @@
           return d[trait];
         });
       });
+
+      traits.forEach(trait => {
+        console.log('into traits');
+        console.log(traits);
+        if(trait == 'suite' || trait == 'component') {
+          // domainByTrait[trait] = 
+          minValue = d3.min(domainByTrait[trait]);
+          maxValue = d3.max((domainByTrait[trait]));
+          domainByTrait[trait] = [Number.parseInt(minValue)-1, Number.parseInt(maxValue)+1];
+          // domainByTrait[trait].push('0', '6');
+          console.log('print statuses domain')
+          console.log(domainByTrait[trait]);
+        };
+      })
 
       //values for dataset are correct
       // console.log(domainByTrait);
@@ -401,7 +415,7 @@
           })
           .attr("r", 4)
           .attr("id", function (d) { return d.id; })
-          .style("fill", function (d) { return color(d.species); })
+          .style("fill", function (d) { return color(d.status); })
           .attr("cy", function (d) { return y(d[p.y]); });
       }
 
