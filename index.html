@@ -148,7 +148,7 @@
       });
 
       //values for dataset are correct
-      // console.log(domainByTrait);
+      console.log(domainByTrait);
 
       xAxis.tickSize(size * n);
       yAxis.tickSize(-size * n);
@@ -275,10 +275,14 @@
               enter => enter
                 .append("circle")
                 .attr("cx", function (d) {
+                  x.domain(domainByTrait[pos.x]);
                   return x(d[pos.x]);
                 })
                 .attr("id", function (d) { return d.id; })
-                .attr("cy", function (d) { return y(d[pos.y]); })
+                .attr("cy", function (d) { 
+                  y.domain(domainByTrait[pos.y]);
+                  return y(d[pos.y]);
+                 })
                 .style("fill", function (d) { return color(d.species); })
                 .attr("r", 4)
                 .style("opacity", 0)
@@ -296,6 +300,8 @@
                 })
                 .attr("cx", function (d) {
                   x.domain(domainByTrait[pos.x]);
+                  console.log('x dot');
+                  console.log(d[pos.x]);
                   return x(d[pos.x]);
                 })
                 .attr("r", 4)
@@ -379,7 +385,7 @@
 
       function plot(p) {
 
-        console.log('plot called');
+        // console.log('plot called');
 
         var cell = d3.select(this);
     
