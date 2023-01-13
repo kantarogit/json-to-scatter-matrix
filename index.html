@@ -202,7 +202,7 @@
           .append("g")
           .attr("transform", "translate(" + padding + "," + padding / 2 + ")");
 
-          svg.append("g")
+        svg.append("g")
           .style("font", "bold 10px sans-serif")
           .style("pointer-events", "none")
           .selectAll("text")
@@ -215,180 +215,178 @@
           .text(d => d);
       }
 
-          // svgOld.remove();
-        // var circles = d3.selectAll("circle");
-        // circles.remove();
+      // svgOld.remove();
+      // var circles = d3.selectAll("circle");
+      // circles.remove();
 
-        var p = cross(traits, traits);
+      var p = cross(traits, traits);
 
 
-         svg.selectAll(".x.axis")
-          .data(traits)
-          .join(
-            enter=>enter.append("g")
-          .attr("class", "x axis")
-          .attr("transform", function (d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
-          .each(function (d) {
-            x.domain(domainByTrait[d]); d3.select(this).transition().call(xAxis);
-          }),
-            update => update
-          // .append("g")
-          // .attr("class", "x axis")
-          // .attr("transform", function (d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
-          .each(function (d) {
-            x.domain(domainByTrait[d]); 
-            d3.select(this).transition().call(xAxis);
-          }),
+      svg.selectAll(".x.axis")
+        .data(traits)
+        .join(
+          enter => enter.append("g")
+            .attr("class", "x axis")
+            .attr("transform", function (d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
+            .each(function (d) {
+              x.domain(domainByTrait[d]); d3.select(this).transition().call(xAxis);
+            }),
+          update => update
+            // .append("g")
+            // .attr("class", "x axis")
+            // .attr("transform", function (d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
+            .each(function (d) {
+              x.domain(domainByTrait[d]);
+              d3.select(this).transition().call(xAxis);
+            }),
           exit => exit.transition().remove()
         )
 
-        svg.selectAll(".y.axis")
-          .data(traits)
-          .join(
-            enter=>enter
+      svg.selectAll(".y.axis")
+        .data(traits)
+        .join(
+          enter => enter
             .append("g")
             .attr("class", "y axis")
             .attr("transform", function (d, i) { return "translate(0," + i * size + ")"; })
             .each(function (d) {
-            y.domain(domainByTrait[d]); d3.select(this).transition().call(yAxis);
-          }),
-            update => update
-          // .append("g")
-          // .attr("class", "y axis")
-          // .attr("transform", function (d, i) { return "translate(0," + i * size + ")"; })
+              y.domain(domainByTrait[d]); d3.select(this).transition().call(yAxis);
+            }),
+          update => update
+            // .append("g")
+            // .attr("class", "y axis")
+            // .attr("transform", function (d, i) { return "translate(0," + i * size + ")"; })
             .each(function (d) {
-              y.domain(domainByTrait[d]); 
+              y.domain(domainByTrait[d]);
               d3.select(this).transition().call(yAxis);
-          }),
+            }),
           exit => exit.transition().remove()
         )
 
 
 
-        p.forEach((pos) => {
+      p.forEach((pos) => {
 
-          var currentCell = d3.selectAll(".cell[xcoordinate='" + pos.i + "']" + "[ycoordinate='" + pos.j + "']");
+        var currentCell = d3.selectAll(".cell[xcoordinate='" + pos.i + "']" + "[ycoordinate='" + pos.j + "']");
 
-          currentCell.selectAll("circle")
-            .data(data)
-            .join(
-              enter => enter
-                .append("circle")
-                .attr("cx", function (d) {
-                  x.domain(domainByTrait[pos.x]);
-                  return x(d[pos.x]);
-                })
-                .attr("id", function (d) { return d.id; })
-                .attr("cy", function (d) { 
-                  y.domain(domainByTrait[pos.y]);
-                  return y(d[pos.y]);
-                 })
-                .style("fill", function (d) { return color(d.species); })
-                .attr("r", 4)
-                .style("opacity", 0)
-                .transition().duration(1000)
-                .style("opacity", 1)
-                .selection(),
-
-              update => update
-                .transition()
-                .duration(1000)
-                .on("start", function () {
-                  d3.select(this)  // 'this' means the current element
-                    .attr("fill", "red")  // Change color
-                    .attr("r", 6);  // Change size
-                })
-                .attr("cx", function (d) {
-                  x.domain(domainByTrait[pos.x]);
-                  console.log('x dot');
-                  console.log(d[pos.x]);
-                  return x(d[pos.x]);
-                })
-                .attr("r", 4)
-                // .attr("id", function (d) { return d.id; })
-                .style("fill", function (d) { return color(d.species); })
-                .attr("cy", function (d) { 
-                  y.domain(domainByTrait[pos.y]);
-                  return y(d[pos.y]); 
-                })
-                .on("end", function () {  // End animation
-                  d3.select(this)  // 'this' means the current element
-                    .transition()
-                    .duration(1000)
-                    .attr("fill", "black")  // Change color
-                    .attr("r", 4);
-                })
-                .selection(),
-
-              exit => exit
-                .transition() // and apply changes to all of them
-                .duration(1000)
-                .style("opacity", 0)
-                .remove()
-            );
-        });
-
-
-       
-
-        //initialy goes here
-
-        // var svg = d3.select("body").append("svg")
-        //   .attr("width", size * n + padding)
-        //   .attr("height", size * n + padding)
-        //   .append("g")
-        //   .attr("transform", "translate(" + padding + "," + padding / 2 + ")");
-
-        // svg.selectAll(".x.axis")
-        //   .data(traits)
-        //   .enter().append("g")
-        //   .attr("class", "x axis")
-        //   .attr("transform", function (d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
-        //   .each(function (d) {
-        //     x.domain(domainByTrait[d]); d3.select(this).call(xAxis);
-        //   });
-
-        // svg.selectAll(".y.axis")
-        //   .data(traits)
-        //   .enter().append("g")
-        //   .attr("class", "y axis")
-        //   .attr("transform", function (d, i) { return "translate(0," + i * size + ")"; })
-        //   .each(function (d) {
-        //     y.domain(domainByTrait[d]); d3.select(this).call(yAxis);
-        //   });
-
-        var cell = svg.selectAll(".cell")
-          .data(cross(traits, traits))
+        currentCell.selectAll("circle")
+          .data(data)
           .join(
-          enter => enter
-          .append("g")
-          .attr("class", "cell")
-          .attr("transform", function (d) { return "translate(" + (n - d.i - 1) * size + "," + d.j * size + ")"; })
-          .attr("xcoordinate", function (d) { return d.i; })
-          .attr("ycoordinate", function (d) { return d.j; })
-          .each(plot),
-          update => update
-          .attr("class", "cell")
-          .attr("transform", function (d) { return "translate(" + (n - d.i - 1) * size + "," + d.j * size + ")"; })
-          .attr("xcoordinate", function (d) { return d.i; })
-          .attr("ycoordinate", function (d) { return d.j; })
+            enter => enter
+              .append("circle")
+              .attr("cx", function (d) {
+                x.domain(domainByTrait[pos.x]);
+                return x(d[pos.x]);
+              })
+              .attr("id", function (d) { return d.id; })
+              .attr("cy", function (d) {
+                y.domain(domainByTrait[pos.y]);
+                return y(d[pos.y]);
+              })
+              .style("fill", function (d) { return color(d.species); })
+              .attr("r", 6)
+              // .style("opacity", 1)
+              .transition().duration(1000)
+              .attr("r", 4)
+              .style("opacity", 1)
+              .selection(),
+
+            update => update
+              .transition()
+              .duration(1000)
+              .on("start", function () {
+                d3.select(this)  // 'this' means the current element
+                  .attr("fill", "red")  // Change color
+                  .attr("r", 6);  // Change size
+              })
+              .attr("cx", function (d) {
+                x.domain(domainByTrait[pos.x]);
+                console.log('x dot');
+                console.log(d[pos.x]);
+                return x(d[pos.x]);
+              })
+              .attr("r", 4)
+              // .attr("id", function (d) { return d.id; })
+              .style("fill", function (d) { return color(d.species); })
+              .attr("cy", function (d) {
+                y.domain(domainByTrait[pos.y]);
+                return y(d[pos.y]);
+              })
+              .on("end", function () {  // End animation
+                d3.select(this)  // 'this' means the current element
+                  .transition()
+                  .duration(1000)
+                  .attr("fill", "black")  // Change color
+                  .attr("r", 4);
+              })
+              .selection(),
+
+            exit => exit
+              .transition() // and apply changes to all of them
+              .duration(1000)
+              .attr("r", 2)
+              .style("opacity", 0)
+              .remove()
           );
+      });
 
-          console.log('calling brush');
 
-        
-          cell.call(brush);
-     
 
-        // todo invert indexes on column names
-        
+
+      //initialy goes here
+
+      // var svg = d3.select("body").append("svg")
+      //   .attr("width", size * n + padding)
+      //   .attr("height", size * n + padding)
+      //   .append("g")
+      //   .attr("transform", "translate(" + padding + "," + padding / 2 + ")");
+
+      // svg.selectAll(".x.axis")
+      //   .data(traits)
+      //   .enter().append("g")
+      //   .attr("class", "x axis")
+      //   .attr("transform", function (d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
+      //   .each(function (d) {
+      //     x.domain(domainByTrait[d]); d3.select(this).call(xAxis);
+      //   });
+
+      // svg.selectAll(".y.axis")
+      //   .data(traits)
+      //   .enter().append("g")
+      //   .attr("class", "y axis")
+      //   .attr("transform", function (d, i) { return "translate(0," + i * size + ")"; })
+      //   .each(function (d) {
+      //     y.domain(domainByTrait[d]); d3.select(this).call(yAxis);
+      //   });
+
+      var cell = svg.selectAll(".cell")
+        .data(cross(traits, traits))
+        .join(
+          enter => enter
+            .append("g")
+            .attr("class", "cell")
+            .attr("transform", function (d) { return "translate(" + (n - d.i - 1) * size + "," + d.j * size + ")"; })
+            .attr("xcoordinate", function (d) { return d.i; })
+            .attr("ycoordinate", function (d) { return d.j; })
+            .each(plot),
+          update => update
+            .attr("class", "cell")
+            .attr("transform", function (d) { return "translate(" + (n - d.i - 1) * size + "," + d.j * size + ")"; })
+            .attr("xcoordinate", function (d) { return d.i; })
+            .attr("ycoordinate", function (d) { return d.j; })
+        );
+
+      console.log('calling brush');
+
+      cell.call(brush);
+      cell.call(brush.move, null);
 
       function plot(p) {
 
         // console.log('plot called');
 
         var cell = d3.select(this);
-    
+
         x.domain(domainByTrait[p.x]);
         y.domain(domainByTrait[p.y]);
 
