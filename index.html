@@ -268,8 +268,33 @@
         var items = myList.selectAll("li");
         // .data(selectedOnly);
 
+
+        /*
+petal length
+: 
+"5.0"
+petal weight
+: 
+"4"
+petal width
+: 
+"6.5"
+sepal length
+: 
+"4.6"
+sepal width
+: 
+"6.3"
+        */
         selectedOnly = Array.from(selectedOnly).reduce((acc, obj) => {
-          const existingObj = acc.find((t) => t.__data__.species === obj.__data__.species);
+          const existingObj = acc.find((t) =>
+            t.__data__.species === obj.__data__.species &&
+            t.__data__["petal length"] === obj.__data__["petal length"] &&
+            t.__data__["petal weight"] === obj.__data__["petal weight"] &&
+            t.__data__["petal width"] === obj.__data__["petal width"] &&
+            t.__data__["sepal length"] === obj.__data__["sepal length"] &&
+            t.__data__["sepal width"] === obj.__data__["sepal width"]
+          );
           if (!existingObj) {
             acc.push(obj);
           }
