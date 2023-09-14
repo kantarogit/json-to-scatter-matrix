@@ -217,45 +217,6 @@
             return x.invert(e[0][0]) > d[p.x] || x.invert(e[1][0]) < d[p.x]
               || y.invert(e[0][1]) < d[p.y] || y.invert(e[1][1]) > d[p.y];
           });
-          var selectedOnly = svg.selectAll("circle:not(.hidden)");
-          // console.log(selectedOnly.__groups);
-
-          //filter the selectedOnly based on the x and y attributes so duplicate values are not added
-
-          // selectedOnly = selectedOnly.filter(function (d, i, nodes) {
-          //   // Check if there is another circle with the same X and Y
-          //   for (var j = 0; j < nodes.length; j++) {
-          //     if (d.species === nodes[j].__data__.species) {
-          //       return false;
-          //     }
-          //   }
-          //   return true;
-          // });
-
-
-          // console.log('selected only:');
-          // console.log(selectedOnly);
-          // var myList = d3.select("#selectedItems");
-          // var items = myList.selectAll("li");
-          // // .data(selectedOnly);
-
-          // items.data(selectedOnly)
-          //   .join(
-          //     enter => enter
-          //       .append("li")
-          //       .text(function (d) {
-          //         // console.log("de");
-          //         // console.log(d.__data__);
-          //         return d.__data__.species;
-          //       }),
-          //     update => update
-          //       .text(function (d) {
-          //         // console.log("de");
-          //         // console.log(d.__data__);
-          //         return d.__data__.species;
-          //       }),
-          //     exit => exit.remove()
-          //   );
         }
       }
 
@@ -266,26 +227,8 @@
         console.log(selectedOnly);
         var myList = d3.select("#selectedItems");
         var items = myList.selectAll("li");
-        // .data(selectedOnly);
 
-
-        /*
-petal length
-: 
-"5.0"
-petal weight
-: 
-"4"
-petal width
-: 
-"6.5"
-sepal length
-: 
-"4.6"
-sepal width
-: 
-"6.3"
-        */
+        existingObj = [];
         selectedOnly = Array.from(selectedOnly).reduce((acc, obj) => {
           const existingObj = acc.find((t) =>
             t.__data__.species === obj.__data__.species &&
@@ -310,14 +253,10 @@ sepal width
             enter => enter
               .append("li")
               .text(function (d) {
-                // console.log("de");
-                // console.log(d.__data__);
                 return d.__data__.species;
               }),
             update => update
               .text(function (d) {
-                // console.log("de");
-                // console.log(d.__data__);
                 return d.__data__.species;
               }),
             exit => exit.remove()
@@ -348,18 +287,6 @@ sepal width
           .attr("y", padding)
           .attr("dy", ".71em")
           .text(d => d);
-      } else {
-        // svg.append("g")
-        //   .style("font", "bold 10px sans-serif")
-        //   .style("pointer-events", "none")
-        //   .selectAll("text")
-        //   .data(traits)
-        //   .join("text")
-        //   .attr("transform", (d, i) => `translate(${i * size},${i * size})`)
-        //   .attr("x", padding)
-        //   .attr("y", padding)
-        //   .attr("dy", ".71em")
-        //   .text(d => d);
       }
 
       var p = cross(traits, traits);
@@ -374,9 +301,6 @@ sepal width
               x.domain(domainByTrait[d]); d3.select(this).transition().call(xAxis);
             }),
           update => update
-            // .append("g")
-            // .attr("class", "x axis")
-            // .attr("transform", function (d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
             .each(function (d) {
               x.domain(domainByTrait[d]);
               d3.select(this).transition().call(xAxis);
@@ -395,9 +319,6 @@ sepal width
               y.domain(domainByTrait[d]); d3.select(this).transition().call(yAxis);
             }),
           update => update
-            // .append("g")
-            // .attr("class", "y axis")
-            // .attr("transform", function (d, i) { return "translate(0," + i * size + ")"; })
             .each(function (d) {
               y.domain(domainByTrait[d]);
               d3.select(this).transition().call(yAxis);
@@ -490,8 +411,6 @@ sepal width
       console.log('calling brush');
 
       cell.call(brush);
-      // cell.call(brush.move, null);
-
 
       //this is the cell selection that is brushed
       let currentSelection = d3.selectAll(".selection")
@@ -508,15 +427,12 @@ sepal width
       );
 
       if (currentSelection.nodes().length > 0) {
-        // cell.call(brush)
         d3.select(currentSelection.nodes()[0].parentNode).call(brush.move, selection);
-        // cell.call(d3.brush().move, Array.of([100, 20], [112, 225]));
       }
 
       function plot(p) {
 
         // console.log('plot called');
-
         var cell = d3.select(this);
 
         x.domain(domainByTrait[p.x]);
