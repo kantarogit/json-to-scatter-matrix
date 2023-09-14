@@ -74,6 +74,47 @@
     background: #04AA6D;
     cursor: pointer;
   }
+
+  #scatter-plot {
+    width: 1600px;
+    height: 1600px;
+  }
+
+  .container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  #list {
+    width: 300px;
+    height: 1080px;
+    overflow-y: scroll;
+    background-color: #f5f5f5;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  #selectedItems {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  #selectedItems li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
+    color: #333;
+  }
+
+  #selectedItems li:last-child {
+    border-bottom: none;
+  }
+
+  #selectedItems li:hover {
+    background-color: #e5e5e5;
+  }
 </style>
 
 <body>
@@ -81,281 +122,353 @@
     <input type="range" min="1" max="40" value="1" step="1" class="slider" id="myRange">
     <p>Value: <span id="demo"></span></p>
   </div>
+  <!-- div with list item to show data in a rows, data source would be a Array in the script -->
+  <!-- <div id="list">
+    <ul id="selectedItems">
+    </ul>
+  </div> -->
 
-  <script>
-    var slider = document.getElementById("myRange");
-    slider.oninput = function () {
-      sliderCall(this.value);
-    }
-  </script>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script>
+    <div class="container">
+      <svg id="scatter-plot"></svg>
+      <div id="list">
+        <ul id="selectedItems"></ul>
+      </div>
+    </div>
 
-    var width = 1080,
-      //size of the cell
-      size = 250,
-      //distance between cells
-      padding = 20;
 
-    // defines, x-axis for each cell
-    var x = d3.scaleLinear()
-      .range([padding / 2, size - padding / 2]);
 
-    // defines, y-axis for each cell
-    var y = d3.scaleLinear()
-      .range([size - padding / 2, padding / 2]);
-
-    // bottom ticks, 6 columns per cell
-    var xAxis = d3.axisBottom()
-      .scale(x)
-      .ticks(6);
-
-    //left ticks, 6 rows per cell
-    var yAxis = d3.axisLeft()
-      .scale(y)
-      .ticks(6);
-
-    var color = d3.scaleOrdinal(d3.schemeCategory10);
-
-    function sliderCall(index) {
-      switch (index) {
-        case '1': return d3.csv("flowers.csv", processRow).then(processData);
-        case '2': return d3.csv("flowers2.csv", processRow).then(processData);
+    <script>
+      var slider = document.getElementById("myRange");
+      slider.oninput = function () {
+        sliderCall(this.value);
       }
-    }
+    </script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
 
-    function processRow(row, index, columnKeys) {
+      var width = 1080,
+        //size of the cell
+        size = 250,
+        //distance between cells
+        padding = 20;
 
-      row[columnKeys[0]] = row[columnKeys[0]].trim().toLowerCase()
-      return row;
-    }
+      // defines, x-axis for each cell
+      var x = d3.scaleLinear()
+        .range([padding / 2, size - padding / 2]);
 
-    function processData(data) {
+      // defines, y-axis for each cell
+      var y = d3.scaleLinear()
+        .range([size - padding / 2, padding / 2]);
 
-      var domainByTrait = {};
+      // bottom ticks, 6 columns per cell
+      var xAxis = d3.axisBottom()
+        .scale(x)
+        .ticks(6);
 
-      var traits = Object.keys(data[0]).filter(function (d) {
-        return d !== "species"
-        //&& d !== "id";
-      });
-      var n = traits.length;
+      //left ticks, 6 rows per cell
+      var yAxis = d3.axisLeft()
+        .scale(y)
+        .ticks(6);
 
-      traits.forEach(function (trait) {
-        // find min and max for each column. d[trait] is the value
-        domainByTrait[trait] = d3.extent(data, function (d) {
-          return d[trait];
+      var color = d3.scaleOrdinal(d3.schemeCategory10);
+
+      function sliderCall(index) {
+        switch (index) {
+          case '1': return d3.csv("flowers.csv", processRow).then(processData);
+          case '2': return d3.csv("flowers2.csv", processRow).then(processData);
+        }
+      }
+
+      function processRow(row, index, columnKeys) {
+
+        row[columnKeys[0]] = row[columnKeys[0]].trim().toLowerCase()
+        return row;
+      }
+
+      function processData(data) {
+
+        var domainByTrait = {};
+
+        var traits = Object.keys(data[0]).filter(function (d) {
+          return d !== "species"
+          //&& d !== "id";
         });
-      });
+        var n = traits.length;
 
-      //values for dataset are correct
-      console.log(domainByTrait);
-
-      xAxis.tickSize(size * n);
-      yAxis.tickSize(-size * n);
-
-      var brush = d3.brush()
-        .extent([[padding / 2, padding / 2], [size - padding / 2, size - padding / 2]])
-        .on("start", brushstart)
-        .on("brush", brushmove)
-        .on("end", brushend);
-
-      let brushCell;
-
-      // Clear the previously-active brush, if any.
-      function brushstart(event, p) {
-        if (brushCell !== this) {
-          d3.select(brushCell).call(brush.move, null);
-          x.domain(domainByTrait[p.x]);
-          y.domain(domainByTrait[p.y]);
-          brushCell = this;
-        }
-      }
-
-      // Highlight the selected circles.
-      function brushmove(event, p) {
-        const selection = event.selection;
-        if (selection != null) {
-          var e = selection;
-          svg.selectAll("circle").classed("hidden", function (d) {
-            return x.invert(e[0][0]) > d[p.x] || x.invert(e[1][0]) < d[p.x]
-              || y.invert(e[0][1]) < d[p.y] || y.invert(e[1][1]) > d[p.y];
+        traits.forEach(function (trait) {
+          // find min and max for each column. d[trait] is the value
+          domainByTrait[trait] = d3.extent(data, function (d) {
+            return d[trait];
           });
-          var selectedOnly = svg.selectAll("circle:not(.hidden)");
-          console.log('selected only:');
-          console.log(selectedOnly);
+        });
+
+        //values for dataset are correct
+        console.log(domainByTrait);
+
+        xAxis.tickSize(size * n);
+        yAxis.tickSize(-size * n);
+
+        var brush = d3.brush()
+          .extent([[padding / 2, padding / 2], [size - padding / 2, size - padding / 2]])
+          .on("start", brushstart)
+          .on("brush", brushmove)
+          .on("end", brushend);
+
+        let brushCell;
+
+        // Clear the previously-active brush, if any.
+        function brushstart(event, p) {
+          if (brushCell !== this) {
+            d3.select(brushCell).call(brush.move, null);
+            x.domain(domainByTrait[p.x]);
+            y.domain(domainByTrait[p.y]);
+            brushCell = this;
+          }
+          // var myList = d3.select("#selectedItems");
+          // var items = myList.selectAll("li")
+          //   .data([]);
         }
-      }
 
-      // If the brush is empty, select all circles.
-      function brushend(event) {
-        if (event.selection === null) svg.selectAll(".hidden").classed("hidden", false);
-      }
+        // Highlight the selected circles.
+        function brushmove(event, p) {
+          const selection = event.selection;
+          if (selection != null) {
+            var e = selection;
+            svg.selectAll("circle").classed("hidden", function (d) {
+              return x.invert(e[0][0]) > d[p.x] || x.invert(e[1][0]) < d[p.x]
+                || y.invert(e[0][1]) < d[p.y] || y.invert(e[1][1]) > d[p.y];
+            });
+            var selectedOnly = svg.selectAll("circle:not(.hidden)");
+            console.log('selected only:');
+            console.log(selectedOnly); 
+          var myList = d3.select("#selectedItems");
+          var items = myList.selectAll("li");
+            // .data(selectedOnly);
 
-      //clear svg after data source change
-      var svg = d3.select("svg");
+            items.data(selectedOnly)
+            .join(
+              enter => enter
+                .append("li")
+                .text(function (d) {
+                  // console.log("de");
+                  // console.log(d.__data__);
+                  return d.__data__.species;
+                }),
+              update => update
+                .text(function (d) {
+                  // console.log("de");
+                  // console.log(d.__data__);
+                  return d.__data__.species;
+                }),
+              exit => exit.remove()
+            );
+          }
+        }
 
-      if (svg.empty()) {
-        console.log('if empty svg');
-        var svg = d3.select("body").append("svg")
-          .attr("width", size * n + padding)
-          .attr("height", size * n + padding)
-          .append("g")
-          .attr("transform", "translate(" + padding + "," + padding / 2 + ")");
+        // If the brush is empty, select all circles.
+        function brushend(event) {
+          var selectedOnly = svg.selectAll("circle:not(.hidden)");
+            console.log('selected only:');
+            console.log(selectedOnly); 
+          var myList = d3.select("#selectedItems");
+          var items = myList.selectAll("li");
+            // .data(selectedOnly);
 
-        svg.append("g")
-          .style("font", "bold 10px sans-serif")
-          .style("pointer-events", "none")
-          .selectAll("text")
-          .data(traits)
-          .join("text")
-          .attr("transform", (d, i) => `translate(${i * size},${i * size})`)
-          .attr("x", padding)
-          .attr("y", padding)
-          .attr("dy", ".71em")
-          .text(d => d);
-      }
+            items.data(selectedOnly)
+            .join(
+              enter => enter
+                .append("li")
+                .text(function (d) {
+                  // console.log("de");
+                  // console.log(d.__data__);
+                  return d.__data__.species;
+                }),
+              update => update
+                .text(function (d) {
+                  // console.log("de");
+                  // console.log(d.__data__);
+                  return d.__data__.species;
+                }),
+              exit => exit.remove()
+            );
+          // items.enter()
+          //   .append("li")
+          //   .text(function (d) { 
+          //     console.log("de");
+          //     console.log(d.__data__);
+          //     return d.__data__.species; });
 
-      // svgOld.remove();
-      // var circles = d3.selectAll("circle");
-      // circles.remove();
+          // items.exit().remove();
+          if (event.selection === null) svg.selectAll(".hidden").classed("hidden", false);
+        }
 
-      var p = cross(traits, traits);
+        //clear svg after data source change
+        var svg = d3.select("svg");
 
-
-      svg.selectAll(".x.axis")
-        .data(traits)
-        .join(
-          enter => enter.append("g")
-            .attr("class", "x axis")
-            .attr("transform", function (d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
-            .each(function (d) {
-              x.domain(domainByTrait[d]); d3.select(this).transition().call(xAxis);
-            }),
-          update => update
-            // .append("g")
-            // .attr("class", "x axis")
-            // .attr("transform", function (d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
-            .each(function (d) {
-              x.domain(domainByTrait[d]);
-              d3.select(this).transition().call(xAxis);
-            }),
-          exit => exit.transition().remove()
-        )
-
-      svg.selectAll(".y.axis")
-        .data(traits)
-        .join(
-          enter => enter
+        if (svg.empty()) {
+          console.log('if empty svg');
+          var svg = d3.select("body").append("svg")
+            .attr("width", size * n + padding)
+            .attr("height", size * n + padding)
             .append("g")
-            .attr("class", "y axis")
-            .attr("transform", function (d, i) { return "translate(0," + i * size + ")"; })
-            .each(function (d) {
-              y.domain(domainByTrait[d]); d3.select(this).transition().call(yAxis);
-            }),
-          update => update
-            // .append("g")
-            // .attr("class", "y axis")
-            // .attr("transform", function (d, i) { return "translate(0," + i * size + ")"; })
-            .each(function (d) {
-              y.domain(domainByTrait[d]);
-              d3.select(this).transition().call(yAxis);
-            }),
-          exit => exit.transition().remove()
-        )
+            .attr("transform", "translate(" + padding + "," + padding / 2 + ")");
 
-      p.forEach((pos) => {
+          svg.append("g")
+            .style("font", "bold 10px sans-serif")
+            .style("pointer-events", "none")
+            .selectAll("text")
+            .data(traits)
+            .join("text")
+            .attr("transform", (d, i) => `translate(${i * size},${i * size})`)
+            .attr("x", padding)
+            .attr("y", padding)
+            .attr("dy", ".71em")
+            .text(d => d);
+        }
 
-        var currentCell = d3.selectAll(".cell[xcoordinate='" + pos.i + "']" + "[ycoordinate='" + pos.j + "']");
+        // svgOld.remove();
+        // var circles = d3.selectAll("circle");
+        // circles.remove();
 
-        currentCell.selectAll("circle")
-          .data(data)
+        var p = cross(traits, traits);
+
+
+        svg.selectAll(".x.axis")
+          .data(traits)
+          .join(
+            enter => enter.append("g")
+              .attr("class", "x axis")
+              .attr("transform", function (d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
+              .each(function (d) {
+                x.domain(domainByTrait[d]); d3.select(this).transition().call(xAxis);
+              }),
+            update => update
+              // .append("g")
+              // .attr("class", "x axis")
+              // .attr("transform", function (d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
+              .each(function (d) {
+                x.domain(domainByTrait[d]);
+                d3.select(this).transition().call(xAxis);
+              }),
+            exit => exit.transition().remove()
+          )
+
+        svg.selectAll(".y.axis")
+          .data(traits)
           .join(
             enter => enter
-              .append("circle")
-              .attr("cx", function (d) {
-                x.domain(domainByTrait[pos.x]);
-                return x(d[pos.x]);
-              })
-              .attr("id", function (d) { return d.id; })
-              .attr("cy", function (d) {
-                y.domain(domainByTrait[pos.y]);
-                return y(d[pos.y]);
-              })
-              .style("fill", function (d) { return color(d.species); })
-              .attr("r", 6)
-              // .style("opacity", 1)
-              .transition().duration(1000)
-              .attr("r", 4)
-              .style("opacity", 1)
-              .selection(),
-
+              .append("g")
+              .attr("class", "y axis")
+              .attr("transform", function (d, i) { return "translate(0," + i * size + ")"; })
+              .each(function (d) {
+                y.domain(domainByTrait[d]); d3.select(this).transition().call(yAxis);
+              }),
             update => update
-              .transition()
-              .duration(1000)
-              .on("start", function () {
-                d3.select(this)  // 'this' means the current element
-                  .attr("fill", "red")  // Change color
-                  .attr("r", 6);  // Change size
-              })
-              .attr("cx", function (d) {
-                x.domain(domainByTrait[pos.x]);
-                console.log('x dot');
-                console.log(d[pos.x]);
-                return x(d[pos.x]);
-              })
-              .attr("r", 4)
-              // .attr("id", function (d) { return d.id; })
-              .style("fill", function (d) { return color(d.species); })
-              .attr("cy", function (d) {
-                y.domain(domainByTrait[pos.y]);
-                return y(d[pos.y]);
-              })
-              .on("end", function () {  // End animation
-                d3.select(this)  // 'this' means the current element
-                  .transition()
-                  .duration(1000)
-                  .attr("fill", "black")  // Change color
-                  .attr("r", 4);
-              })
-              .selection(),
+              // .append("g")
+              // .attr("class", "y axis")
+              // .attr("transform", function (d, i) { return "translate(0," + i * size + ")"; })
+              .each(function (d) {
+                y.domain(domainByTrait[d]);
+                d3.select(this).transition().call(yAxis);
+              }),
+            exit => exit.transition().remove()
+          )
 
-            exit => exit
-              .transition() // and apply changes to all of them
-              .duration(1000)
-              .attr("r", 2)
-              .style("opacity", 0)
-              .remove()
-          );
-      });
+        p.forEach((pos) => {
 
-      var cell = svg.selectAll(".cell")
-        .data(cross(traits, traits))
-        .join(
-          enter => enter
-            .append("g")
-            .attr("class", "cell")
-            .attr("transform", function (d) { return "translate(" + (n - d.i - 1) * size + "," + d.j * size + ")"; })
-            .attr("xcoordinate", function (d) { return d.i; })
-            .attr("ycoordinate", function (d) { return d.j; })
-            .each(plot),
-          update => update
-            .attr("class", "cell")
-            .attr("transform", function (d) { return "translate(" + (n - d.i - 1) * size + "," + d.j * size + ")"; })
-            .attr("xcoordinate", function (d) { return d.i; })
-            .attr("ycoordinate", function (d) { return d.j; })
-        );
+          var currentCell = d3.selectAll(".cell[xcoordinate='" + pos.i + "']" + "[ycoordinate='" + pos.j + "']");
 
-      console.log('calling brush');
+          currentCell.selectAll("circle")
+            .data(data)
+            .join(
+              enter => enter
+                .append("circle")
+                .attr("cx", function (d) {
+                  x.domain(domainByTrait[pos.x]);
+                  return x(d[pos.x]);
+                })
+                .attr("id", function (d) { return d.id; })
+                .attr("cy", function (d) {
+                  y.domain(domainByTrait[pos.y]);
+                  return y(d[pos.y]);
+                })
+                .style("fill", function (d) { return color(d.species); })
+                .attr("r", 6)
+                // .style("opacity", 1)
+                .transition().duration(1000)
+                .attr("r", 4)
+                .style("opacity", 1)
+                .selection(),
 
-      cell.call(brush);
-      // cell.call(brush.move, null);
+              update => update
+                .transition()
+                .duration(1000)
+                .on("start", function () {
+                  d3.select(this)  // 'this' means the current element
+                    .attr("fill", "red")  // Change color
+                    .attr("r", 6);  // Change size
+                })
+                .attr("cx", function (d) {
+                  x.domain(domainByTrait[pos.x]);
+                  console.log('x dot');
+                  console.log(d[pos.x]);
+                  return x(d[pos.x]);
+                })
+                .attr("r", 4)
+                // .attr("id", function (d) { return d.id; })
+                .style("fill", function (d) { return color(d.species); })
+                .attr("cy", function (d) {
+                  y.domain(domainByTrait[pos.y]);
+                  return y(d[pos.y]);
+                })
+                .on("end", function () {  // End animation
+                  d3.select(this)  // 'this' means the current element
+                    .transition()
+                    .duration(1000)
+                    .attr("fill", "black")  // Change color
+                    .attr("r", 4);
+                })
+                .selection(),
 
-      let currentSelection = d3.selectAll(".selection")
-        .filter(function () {
-          return d3.select(this).attr("style") == ''; // filter by single attribute
+              exit => exit
+                .transition() // and apply changes to all of them
+                .duration(1000)
+                .attr("r", 2)
+                .style("opacity", 0)
+                .remove()
+            );
         });
 
-      const selection = Array.of(
+        var cell = svg.selectAll(".cell")
+          .data(cross(traits, traits))
+          .join(
+            enter => enter
+              .append("g")
+              .attr("class", "cell")
+              .attr("transform", function (d) { return "translate(" + (n - d.i - 1) * size + "," + d.j * size + ")"; })
+              .attr("xcoordinate", function (d) { return d.i; })
+              .attr("ycoordinate", function (d) { return d.j; })
+              .each(plot),
+            update => update
+              .attr("class", "cell")
+              .attr("transform", function (d) { return "translate(" + (n - d.i - 1) * size + "," + d.j * size + ")"; })
+              .attr("xcoordinate", function (d) { return d.i; })
+              .attr("ycoordinate", function (d) { return d.j; })
+          );
+
+        console.log('calling brush');
+
+        cell.call(brush);
+        // cell.call(brush.move, null);
+
+
+        //this is the cell selection that is brushed
+        let currentSelection = d3.selectAll(".selection")
+          .filter(function () {
+            return d3.select(this).attr("style") == ''; // filter by single attribute
+          });
+
+        const selection = Array.of(
           [Number.parseInt(currentSelection.attr("x")), Number.parseFloat(currentSelection.attr("y"))],
           [
             Number.parseInt(currentSelection.attr("x")) + Number.parseInt(currentSelection.attr("width")),
@@ -363,54 +476,52 @@
           ],
         );
 
-          // selectionExist.nodes().length > 0;
+        if (currentSelection.nodes().length > 0) {
+          // cell.call(brush)
+          d3.select(currentSelection.nodes()[0].parentNode).call(brush.move, selection);
+          // cell.call(d3.brush().move, Array.of([100, 20], [112, 225]));
+        }
 
-          if (currentSelection.nodes().length > 0) {
-        // cell.call(brush)
-        d3.select(currentSelection.nodes()[0].parentNode).call(brush.move, selection);
-        // cell.call(d3.brush().move, Array.of([100, 20], [112, 225]));
+        function plot(p) {
+
+          // console.log('plot called');
+
+          var cell = d3.select(this);
+
+          x.domain(domainByTrait[p.x]);
+          y.domain(domainByTrait[p.y]);
+
+          cell.append("rect")
+            .attr("class", "frame")
+            .attr("x", padding / 2)
+            .attr("y", padding / 2)
+            .attr("width", size - padding)
+            .attr("height", size - padding);
+
+          cell.selectAll("circle")
+            .data(data)
+            .enter().append("circle")
+            .attr("cx", function (d) {
+              return x(d[p.x]);
+            })
+            .attr("r", 4)
+            .attr("id", function (d) { return d.id; })
+            .style("fill", function (d) { return color(d.species); })
+            .attr("cy", function (d) { return y(d[p.y]); });
+        }
+
+
       }
 
-      function plot(p) {
-
-        // console.log('plot called');
-
-        var cell = d3.select(this);
-
-        x.domain(domainByTrait[p.x]);
-        y.domain(domainByTrait[p.y]);
-
-        cell.append("rect")
-          .attr("class", "frame")
-          .attr("x", padding / 2)
-          .attr("y", padding / 2)
-          .attr("width", size - padding)
-          .attr("height", size - padding);
-
-        cell.selectAll("circle")
-          .data(data)
-          .enter().append("circle")
-          .attr("cx", function (d) {
-            return x(d[p.x]);
-          })
-          .attr("r", 4)
-          .attr("id", function (d) { return d.id; })
-          .style("fill", function (d) { return color(d.species); })
-          .attr("cy", function (d) { return y(d[p.y]); });
+      function cross(a, b) {
+        var c = [], n = a.length, m = b.length, i, j;
+        for (i = -1; ++i < n;) for (j = -1; ++j < m;) c.push({ x: a[i], i: i, y: b[j], j: j });
+        return c;
       }
 
-
-    }
-
-    function cross(a, b) {
-      var c = [], n = a.length, m = b.length, i, j;
-      for (i = -1; ++i < n;) for (j = -1; ++j < m;) c.push({ x: a[i], i: i, y: b[j], j: j });
-      return c;
-    }
-
-    //initial state
-    d3.csv("flowers.csv", processRow).then(processData);
-  </script>
+      //initial state
+      d3.csv("flowers.csv", processRow).then(processData);
+    </script>
 </body>
 </meta>
 
