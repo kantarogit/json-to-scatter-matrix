@@ -6,7 +6,7 @@ const dateTime = moment().format('MM-DD-YYYY-HH-mm-ss');
 //location to test directory
 
 try {
-    execSync(`mocha --recursive test/**/*.* --reporter json > test-report-${dateTime}.json`);
+    execSync(`mocha --recursive test/**/*.* --reporter json > ./reports/test-report-${dateTime}.json`);
 
 } catch (error) {
     //wait for the report file to be created
