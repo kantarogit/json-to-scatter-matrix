@@ -142,21 +142,28 @@
     var y = d3.scaleLinear()
       .range([size - padding / 2, padding / 2]);
 
+    var xDiscrete = d3.scaleBand()
+      .range([padding / 2, size - padding / 2]);
+
+    // defines, y-axis for each cell
+    var yDiscrete = d3.scaleBand()
+      .range([size - padding / 2, padding / 2]);
+
     // bottom ticks, 6 columns per cell
     var xAxis = d3.axisBottom()
-      .scale(x)
+      // .scale(x)
       .ticks(6);
 
     //left ticks, 6 rows per cell
     var yAxis = d3.axisLeft()
-      .scale(y)
+      // .scale(y)
       .ticks(6);
 
     var color = d3.scaleOrdinal(d3.schemeCategory10);
 
     function sliderCall(index) {
       switch (index) {
-        case '1': return d3.csv("flowers.csv", processRow).then(processData);
+        case '1': return d3.csv("flowers2 copy.csv", processRow).then(processData);
         case '2': return d3.csv("flowers2.csv", processRow).then(processData);
       }
     }
@@ -178,10 +185,15 @@
       var n = traits.length;
 
       traits.forEach(function (trait) {
-        // find min and max for each column. d[trait] is the value
-        domainByTrait[trait] = d3.extent(data, function (d) {
-          return d[trait];
-        });
+        if (trait == 'sepal length') {
+          uniqueValues = [...new Set(data.map(item => item[trait]))];
+          domainByTrait[trait] = uniqueValues;
+        } else {
+          // find min and max for each column. d[trait] is the value
+          domainByTrait[trait] = d3.extent(data, function (d) {
+            return d[trait];
+          });
+        }
       });
 
       //values for dataset are correct
@@ -298,7 +310,17 @@
             .attr("class", "x axis")
             .attr("transform", function (d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
             .each(function (d) {
-              x.domain(domainByTrait[d]); d3.select(this).transition().call(xAxis);
+              console.log(d);
+              
+              if (d == 'sepal length') {
+                console.log(domainByTrait[d]);
+                xDiscrete.domain(domainByTrait[d]);
+                xAxis.scale(xDiscrete);
+                d3.select(this).transition().call(xAxis);
+              } else {
+                xAxis.scale(x);
+                x.domain(domainByTrait[d]); d3.select(this).transition().call(xAxis);
+              }
             }),
           update => update
             .each(function (d) {
@@ -316,7 +338,15 @@
             .attr("class", "y axis")
             .attr("transform", function (d, i) { return "translate(0," + i * size + ")"; })
             .each(function (d) {
-              y.domain(domainByTrait[d]); d3.select(this).transition().call(yAxis);
+              if (d == 'sepal length') {
+                console.log(domainByTrait[d]);
+                yAxis.scale(yDiscrete);
+                yDiscrete.domain(domainByTrait[d]);
+                d3.select(this).transition().call(yAxis);
+              } else {
+                yAxis.scale(y);
+                y.domain(domainByTrait[d]); d3.select(this).transition().call(yAxis);
+              }
             }),
           update => update
             .each(function (d) {
@@ -467,7 +497,7 @@
     }
 
     //initial state
-    d3.csv("flowers.csv", processRow).then(processData);
+    d3.csv("flowers2 copy.csv", processRow).then(processData);
   </script>
 </body>
 </meta>
