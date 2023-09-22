@@ -366,6 +366,8 @@
             enter => enter
               .append("circle")
               .attr("cx", function (d) {
+                console.log('x dot');
+                console.log(domainByTrait[pos.x]);
                 x.domain(domainByTrait[pos.x]);
                 return x(d[pos.x]);
               })
@@ -479,12 +481,26 @@
           .data(data)
           .enter().append("circle")
           .attr("cx", function (d) {
-            return x(d[p.x]);
+            if(p.x == 'sepal length') {
+              xDiscrete.domain(domainByTrait[p.x]);
+              return xDiscrete(d[p.x]);
+            } else {
+              x.domain(domainByTrait[p.x]);
+              return x(d[p.x]);
+            }
           })
           .attr("r", 4)
           .attr("id", function (d) { return d.id; })
           .style("fill", function (d) { return color(d.species); })
-          .attr("cy", function (d) { return y(d[p.y]); });
+          .attr("cy", function (d) { 
+            if(p.y == 'sepal length') {
+              yDiscrete.domain(domainByTrait[p.y]);
+              return yDiscrete(d[p.y]);
+            } else {
+              y.domain(domainByTrait[p.y]);
+              return y(d[p.y]);
+            }
+           });
       }
 
 
