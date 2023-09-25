@@ -225,8 +225,6 @@
           } else {
             y.domain(domainByTrait[p.y]);
           }
-          // x.domain(domainByTrait[p.x]);
-          // y.domain(domainByTrait[p.y]);
           brushCell = this;
         }
       }
@@ -238,103 +236,46 @@
           var e = selection;
           svg.selectAll("circle").classed("hidden", function (d) {
 
-            let xStartValue = x.invert(e[0][0]);
-            let xEndValue = x.invert(e[1][0]);
-            let yStartValue = y.invert(e[0][1]);
-            let yEndValue = y.invert(e[1][1]);
+            let xStartValue, xEndValue, yStartValue, yEndValue, xCircle, yCircle;
 
-            let xCircle = d[p.x];
-            let yCircle = d[p.y];
+            xStartValue = x.invert(e[0][0]);
+            xEndValue = x.invert(e[1][0]);
+            yStartValue = y.invert(e[0][1]);
+            yEndValue = y.invert(e[1][1]);
+
+            xCircle = d[p.x];
+            yCircle = d[p.y];
 
             if (p.x == 'sepal length' && p.x != p.y) {
 
-              // // Use the scale to map an input value of "B" to an output value
-              // var output = xDiscrete("B");
-
-              // // Use the step() method to calculate the width of each band
-              // var step = xDiscrete.step();
-
-              // // Use the domain() method to get the domain values for each band
-              // var domain = xDiscrete.domain();
-
-              // // Calculate the index of the band that contains the output value
-              // var index = Math.floor(output / step);
-
-              // // Get the domain value for the band at the calculated index
-              // var domainValue = domain[index];
-
-              // console.log(domainValue); // "B"
-
-              // return e[0][0] > xDiscrete(d[p.x]) || e[1][0] > xDiscrete(d[p.x])
-              //   || y.invert(e[0][1]) < d[p.y] || y.invert(e[1][1]) > d[p.y];
-
               xStartValue = e[0][0];
               xEndValue = e[1][0];
 
               xCircle = xDiscrete(d[p.x]);
-
-              if (((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
-                ((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue)) ||
-                ((xStartValue >= xCircle && xCircle >= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
-                ((xStartValue >= xCircle && xCircle >= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue))) {
-                return false;
-              } else {
-                return true;
-              }
-
             } else if (p.y == 'sepal length' && p.x != p.y) {
-              // return x.invert(e[0][0]) > d[p.x] || x.invert(e[1][0]) < d[p.x]
-              //   || e[1][1] < yDiscrete(d[p.y]) || e[0][1] < yDiscrete(d[p.y])
-
 
               yStartValue = e[0][1];
               yEndValue = e[1][1];
 
               yCircle = yDiscrete(d[p.y]);
-
-              if (((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
-                ((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue)) ||
-                ((xStartValue >= xCircle && xCircle >= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
-                ((xStartValue >= xCircle && xCircle >= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue))) {
-                return false;
-              } else {
-                return true;
-              }
             } else if (p.y == 'sepal length' && p.x == 'sepal length') {
-              // return x.invert(e[0][0]) > d[p.x] || x.invert(e[1][0]) < d[p.x]
-              //   || e[1][1] < yDiscrete(d[p.y]) || e[0][1] < yDiscrete(d[p.y])
-
 
               xStartValue = e[0][0];
               xEndValue = e[1][0];
-
               yStartValue = e[0][1];
               yEndValue = e[1][1];
 
               xCircle = xDiscrete(d[p.x]);
               yCircle = yDiscrete(d[p.y]);
+            } 
 
-              if (((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
-                ((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue)) ||
-                ((xStartValue >= xCircle && xCircle >= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
-                ((xStartValue >= xCircle && xCircle >= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue))) {
-                return false;
-              } else {
-                return true;
-              }
+            if (((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
+              ((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue)) ||
+              ((xStartValue >= xCircle && xCircle >= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
+              ((xStartValue >= xCircle && xCircle >= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue))) {
+              return false;
             } else {
-              // console.log(e);
-              // return x.invert(e[0][0]) > d[p.x] || x.invert(e[1][0]) < d[p.x]
-              //   || y.invert(e[0][1]) < d[p.y] || y.invert(e[1][1]) > d[p.y];
-
-              if (((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
-                ((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue)) ||
-                ((xStartValue >= xCircle && xCircle >= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
-                ((xStartValue >= xCircle && xCircle >= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue))) {
-                return false;
-              } else {
-                return true;
-              }
+              return true;
             }
           });
         }
