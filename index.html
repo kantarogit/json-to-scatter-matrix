@@ -251,13 +251,13 @@
               xStartValue = e[0][0];
               xEndValue = e[1][0];
 
-              xCircle = xDiscrete(d[p.x]);
+              xCircle = xDiscrete(d[p.x]) + xDiscrete.bandwidth() / 2;
             } else if (p.y == 'sepal length' && p.x != p.y) {
 
               yStartValue = e[0][1];
               yEndValue = e[1][1];
 
-              yCircle = yDiscrete(d[p.y]);
+              yCircle = yDiscrete(d[p.y]) + yDiscrete.bandwidth() / 2;
             } else if (p.y == 'sepal length' && p.x == 'sepal length') {
 
               xStartValue = e[0][0];
@@ -265,8 +265,8 @@
               yStartValue = e[0][1];
               yEndValue = e[1][1];
 
-              xCircle = xDiscrete(d[p.x]);
-              yCircle = yDiscrete(d[p.y]);
+              xCircle = xDiscrete(d[p.x]) + xDiscrete.bandwidth() / 2;
+              yCircle = yDiscrete(d[p.y]) + yDiscrete.bandwidth() / 2;
             }
 
             if (((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
@@ -373,8 +373,6 @@
             }),
           update => update
             .each(function (d) {
-              // x.domain(domainByTrait[d]);
-              // d3.select(this).transition().call(xAxis);
               if (d == 'sepal length') {
                 console.log(domainByTrait[d]);
                 xDiscrete.domain(domainByTrait[d]);
@@ -408,8 +406,6 @@
             }),
           update => update
             .each(function (d) {
-              // y.domain(domainByTrait[d]);
-              // d3.select(this).transition().call(yAxis);
               if (d == 'sepal length') {
                 console.log(domainByTrait[d]);
                 yAxis.scale(yDiscrete);
@@ -573,7 +569,7 @@
           .attr("cx", function (d) {
             if (p.x == 'sepal length') {
               xDiscrete.domain(domainByTrait[p.x]);
-              return xDiscrete(d[p.x]);
+              return xDiscrete(d[p.x]) + xDiscrete.bandwidth() / 2;
             } else {
               x.domain(domainByTrait[p.x]);
               return x(d[p.x]);
@@ -585,7 +581,7 @@
           .attr("cy", function (d) {
             if (p.y == 'sepal length') {
               yDiscrete.domain(domainByTrait[p.y]);
-              return yDiscrete(d[p.y]);
+              return yDiscrete(d[p.y]) + yDiscrete.bandwidth() / 2;
             } else {
               y.domain(domainByTrait[p.y]);
               return y(d[p.y]);
