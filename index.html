@@ -214,8 +214,19 @@
       function brushstart(event, p) {
         if (brushCell !== this) {
           d3.select(brushCell).call(brush.move, null);
-          x.domain(domainByTrait[p.x]);
-          y.domain(domainByTrait[p.y]);
+          if (p.x == 'sepal length') {
+            xDiscrete.domain(domainByTrait[p.x]);
+          } else {
+            x.domain(domainByTrait[p.x]);
+          }
+
+          if (p.y == 'sepal length') {
+            yDiscrete.domain(domainByTrait[p.y]);
+          } else {
+            y.domain(domainByTrait[p.y]);
+          }
+          // x.domain(domainByTrait[p.x]);
+          // y.domain(domainByTrait[p.y]);
           brushCell = this;
         }
       }
@@ -226,8 +237,105 @@
         if (selection != null) {
           var e = selection;
           svg.selectAll("circle").classed("hidden", function (d) {
-            return x.invert(e[0][0]) > d[p.x] || x.invert(e[1][0]) < d[p.x]
-              || y.invert(e[0][1]) < d[p.y] || y.invert(e[1][1]) > d[p.y];
+
+            let xStartValue = x.invert(e[0][0]);
+            let xEndValue = x.invert(e[1][0]);
+            let yStartValue = y.invert(e[0][1]);
+            let yEndValue = y.invert(e[1][1]);
+
+            let xCircle = d[p.x];
+            let yCircle = d[p.y];
+
+            if (p.x == 'sepal length' && p.x != p.y) {
+
+              // // Use the scale to map an input value of "B" to an output value
+              // var output = xDiscrete("B");
+
+              // // Use the step() method to calculate the width of each band
+              // var step = xDiscrete.step();
+
+              // // Use the domain() method to get the domain values for each band
+              // var domain = xDiscrete.domain();
+
+              // // Calculate the index of the band that contains the output value
+              // var index = Math.floor(output / step);
+
+              // // Get the domain value for the band at the calculated index
+              // var domainValue = domain[index];
+
+              // console.log(domainValue); // "B"
+
+              // return e[0][0] > xDiscrete(d[p.x]) || e[1][0] > xDiscrete(d[p.x])
+              //   || y.invert(e[0][1]) < d[p.y] || y.invert(e[1][1]) > d[p.y];
+
+              xStartValue = e[0][0];
+              xEndValue = e[1][0];
+
+              xCircle = xDiscrete(d[p.x]);
+
+              if (((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
+                ((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue)) ||
+                ((xStartValue >= xCircle && xCircle >= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
+                ((xStartValue >= xCircle && xCircle >= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue))) {
+                return false;
+              } else {
+                return true;
+              }
+
+            } else if (p.y == 'sepal length' && p.x != p.y) {
+              // return x.invert(e[0][0]) > d[p.x] || x.invert(e[1][0]) < d[p.x]
+              //   || e[1][1] < yDiscrete(d[p.y]) || e[0][1] < yDiscrete(d[p.y])
+
+
+              yStartValue = e[0][1];
+              yEndValue = e[1][1];
+
+              yCircle = yDiscrete(d[p.y]);
+
+              if (((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
+                ((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue)) ||
+                ((xStartValue >= xCircle && xCircle >= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
+                ((xStartValue >= xCircle && xCircle >= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue))) {
+                return false;
+              } else {
+                return true;
+              }
+            } else if (p.y == 'sepal length' && p.x == 'sepal length') {
+              // return x.invert(e[0][0]) > d[p.x] || x.invert(e[1][0]) < d[p.x]
+              //   || e[1][1] < yDiscrete(d[p.y]) || e[0][1] < yDiscrete(d[p.y])
+
+
+              xStartValue = e[0][0];
+              xEndValue = e[1][0];
+
+              yStartValue = e[0][1];
+              yEndValue = e[1][1];
+
+              xCircle = xDiscrete(d[p.x]);
+              yCircle = yDiscrete(d[p.y]);
+
+              if (((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
+                ((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue)) ||
+                ((xStartValue >= xCircle && xCircle >= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
+                ((xStartValue >= xCircle && xCircle >= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue))) {
+                return false;
+              } else {
+                return true;
+              }
+            } else {
+              // console.log(e);
+              // return x.invert(e[0][0]) > d[p.x] || x.invert(e[1][0]) < d[p.x]
+              //   || y.invert(e[0][1]) < d[p.y] || y.invert(e[1][1]) > d[p.y];
+
+              if (((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
+                ((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue)) ||
+                ((xStartValue >= xCircle && xCircle >= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
+                ((xStartValue >= xCircle && xCircle >= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue))) {
+                return false;
+              } else {
+                return true;
+              }
+            }
           });
         }
       }
@@ -311,7 +419,7 @@
             .attr("transform", function (d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
             .each(function (d) {
               console.log(d);
-              
+
               if (d == 'sepal length') {
                 console.log(domainByTrait[d]);
                 xDiscrete.domain(domainByTrait[d]);
@@ -481,7 +589,7 @@
           .data(data)
           .enter().append("circle")
           .attr("cx", function (d) {
-            if(p.x == 'sepal length') {
+            if (p.x == 'sepal length') {
               xDiscrete.domain(domainByTrait[p.x]);
               return xDiscrete(d[p.x]);
             } else {
@@ -492,15 +600,15 @@
           .attr("r", 4)
           .attr("id", function (d) { return d.id; })
           .style("fill", function (d) { return color(d.species); })
-          .attr("cy", function (d) { 
-            if(p.y == 'sepal length') {
+          .attr("cy", function (d) {
+            if (p.y == 'sepal length') {
               yDiscrete.domain(domainByTrait[p.y]);
               return yDiscrete(d[p.y]);
             } else {
               y.domain(domainByTrait[p.y]);
               return y(d[p.y]);
             }
-           });
+          });
       }
 
 
