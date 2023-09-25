@@ -164,7 +164,7 @@
     function sliderCall(index) {
       switch (index) {
         case '1': return d3.csv("flowers2 copy.csv", processRow).then(processData);
-        case '2': return d3.csv("flowers2.csv", processRow).then(processData);
+        case '2': return d3.csv("flowers2 copy 2.csv", processRow).then(processData);
       }
     }
 
@@ -267,7 +267,7 @@
 
               xCircle = xDiscrete(d[p.x]);
               yCircle = yDiscrete(d[p.y]);
-            } 
+            }
 
             if (((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
               ((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue)) ||
@@ -373,8 +373,17 @@
             }),
           update => update
             .each(function (d) {
-              x.domain(domainByTrait[d]);
-              d3.select(this).transition().call(xAxis);
+              // x.domain(domainByTrait[d]);
+              // d3.select(this).transition().call(xAxis);
+              if (d == 'sepal length') {
+                console.log(domainByTrait[d]);
+                xDiscrete.domain(domainByTrait[d]);
+                xAxis.scale(xDiscrete);
+                d3.select(this).transition().call(xAxis);
+              } else {
+                xAxis.scale(x);
+                x.domain(domainByTrait[d]); d3.select(this).transition().call(xAxis);
+              }
             }),
           exit => exit.transition().remove()
         )
@@ -399,8 +408,17 @@
             }),
           update => update
             .each(function (d) {
-              y.domain(domainByTrait[d]);
-              d3.select(this).transition().call(yAxis);
+              // y.domain(domainByTrait[d]);
+              // d3.select(this).transition().call(yAxis);
+              if (d == 'sepal length') {
+                console.log(domainByTrait[d]);
+                yAxis.scale(yDiscrete);
+                yDiscrete.domain(domainByTrait[d]);
+                d3.select(this).transition().call(yAxis);
+              } else {
+                yAxis.scale(y);
+                y.domain(domainByTrait[d]); d3.select(this).transition().call(yAxis);
+              }
             }),
           exit => exit.transition().remove()
         )
@@ -415,15 +433,23 @@
             enter => enter
               .append("circle")
               .attr("cx", function (d) {
-                console.log('x dot');
-                console.log(domainByTrait[pos.x]);
-                x.domain(domainByTrait[pos.x]);
-                return x(d[pos.x]);
+                if (pos.x == 'sepal length') {
+                  xDiscrete.domain(domainByTrait[pos.x]);
+                  return xDiscrete(d[pos.x]);
+                } else {
+                  x.domain(domainByTrait[pos.x]);
+                  return x(d[pos.x]);
+                }
               })
               .attr("id", function (d) { return d.id; })
               .attr("cy", function (d) {
-                y.domain(domainByTrait[pos.y]);
-                return y(d[pos.y]);
+                if (pos.y == 'sepal length') {
+                  yDiscrete.domain(domainByTrait[pos.y]);
+                  return yDiscrete(d[pos.y]);
+                } else {
+                  y.domain(domainByTrait[pos.y]);
+                  return y(d[pos.y]);
+                }
               })
               .style("fill", function (d) { return color(d.species); })
               .attr("r", 6)
@@ -442,17 +468,31 @@
                   .attr("r", 6);  // Change size
               })
               .attr("cx", function (d) {
-                x.domain(domainByTrait[pos.x]);
-                console.log('x dot');
-                console.log(d[pos.x]);
-                return x(d[pos.x]);
+                // x.domain(domainByTrait[pos.x]);
+                // console.log('x dot');
+                // console.log(d[pos.x]);
+                // return x(d[pos.x]);
+                if (pos.x == 'sepal length') {
+                  xDiscrete.domain(domainByTrait[pos.x]);
+                  return xDiscrete(d[pos.x]);
+                } else {
+                  x.domain(domainByTrait[pos.x]);
+                  return x(d[pos.x]);
+                }
               })
               .attr("r", 4)
               // .attr("id", function (d) { return d.id; })
               .style("fill", function (d) { return color(d.species); })
               .attr("cy", function (d) {
-                y.domain(domainByTrait[pos.y]);
-                return y(d[pos.y]);
+                // y.domain(domainByTrait[pos.y]);
+                // return y(d[pos.y]);
+                if (pos.y == 'sepal length') {
+                  yDiscrete.domain(domainByTrait[pos.y]);
+                  return yDiscrete(d[pos.y]);
+                } else {
+                  y.domain(domainByTrait[pos.y]);
+                  return y(d[pos.y]);
+                }
               })
               .on("end", function () {  // End animation
                 d3.select(this)  // 'this' means the current element
@@ -528,7 +568,8 @@
 
         cell.selectAll("circle")
           .data(data)
-          .enter().append("circle")
+          .enter()
+          .append("circle")
           .attr("cx", function (d) {
             if (p.x == 'sepal length') {
               xDiscrete.domain(domainByTrait[p.x]);
