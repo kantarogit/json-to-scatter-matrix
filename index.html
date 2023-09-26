@@ -431,7 +431,7 @@
               .attr("cx", function (d) {
                 if (pos.x == 'sepal length') {
                   xDiscrete.domain(domainByTrait[pos.x]);
-                  return xDiscrete(d[pos.x]);
+                  return xDiscrete(d[pos.x]) + xDiscrete.bandwidth() / 2;
                 } else {
                   x.domain(domainByTrait[pos.x]);
                   return x(d[pos.x]);
@@ -441,7 +441,7 @@
               .attr("cy", function (d) {
                 if (pos.y == 'sepal length') {
                   yDiscrete.domain(domainByTrait[pos.y]);
-                  return yDiscrete(d[pos.y]);
+                  return yDiscrete(d[pos.y]) + yDiscrete.bandwidth() / 2;
                 } else {
                   y.domain(domainByTrait[pos.y]);
                   return y(d[pos.y]);
@@ -470,7 +470,7 @@
                 // return x(d[pos.x]);
                 if (pos.x == 'sepal length') {
                   xDiscrete.domain(domainByTrait[pos.x]);
-                  return xDiscrete(d[pos.x]);
+                  return xDiscrete(d[pos.x]) + xDiscrete.bandwidth() / 2;
                 } else {
                   x.domain(domainByTrait[pos.x]);
                   return x(d[pos.x]);
@@ -484,7 +484,7 @@
                 // return y(d[pos.y]);
                 if (pos.y == 'sepal length') {
                   yDiscrete.domain(domainByTrait[pos.y]);
-                  return yDiscrete(d[pos.y]);
+                  return yDiscrete(d[pos.y]) + yDiscrete.bandwidth() / 2;
                 } else {
                   y.domain(domainByTrait[pos.y]);
                   return y(d[pos.y]);
