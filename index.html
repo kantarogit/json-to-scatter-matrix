@@ -180,19 +180,21 @@
       var domainByTrait = {};
 
       var traits = Object.keys(data[0]).filter(function (d) {
-        return d !== "species"
+        return d !== "testTitle" && d !== "file" && d !== "status"
         //&& d !== "id";
       });
+
+      //todo change this in cells titles
       var n = traits.length;
 
       traits.forEach(function (trait) {
-        if (trait == 'sepal length') {
+        if (trait == 'suite') {
           uniqueValues = [...new Set(data.map(item => item[trait]))];
           domainByTrait[trait] = uniqueValues;
         } else {
           // find min and max for each column. d[trait] is the value
           domainByTrait[trait] = d3.extent(data, function (d) {
-            return d[trait];
+            return Number(d[trait]);
           });
         }
       });
@@ -215,13 +217,13 @@
       function brushstart(event, p) {
         if (brushCell !== this) {
           d3.select(brushCell).call(brush.move, null);
-          if (p.x == 'sepal length') {
+          if (p.x == 'suite') {
             xDiscrete.domain(domainByTrait[p.x]);
           } else {
             x.domain(domainByTrait[p.x]);
           }
 
-          if (p.y == 'sepal length') {
+          if (p.y == 'suite') {
             yDiscrete.domain(domainByTrait[p.y]);
           } else {
             y.domain(domainByTrait[p.y]);
@@ -247,19 +249,19 @@
             xCircle = d[p.x];
             yCircle = d[p.y];
 
-            if (p.x == 'sepal length' && p.x != p.y) {
+            if (p.x == 'suite' && p.x != p.y) {
 
               xStartValue = e[0][0];
               xEndValue = e[1][0];
 
               xCircle = xDiscrete(d[p.x]) + xDiscrete.bandwidth() / 2;
-            } else if (p.y == 'sepal length' && p.x != p.y) {
+            } else if (p.y == 'suite' && p.x != p.y) {
 
               yStartValue = e[0][1];
               yEndValue = e[1][1];
 
               yCircle = yDiscrete(d[p.y]) + yDiscrete.bandwidth() / 2;
-            } else if (p.y == 'sepal length' && p.x == 'sepal length') {
+            } else if (p.y == 'suite' && p.x == 'suite') {
 
               xStartValue = e[0][0];
               xEndValue = e[1][0];
@@ -364,7 +366,7 @@
             .each(function (d) {
               console.log(d);
 
-              if (d == 'sepal length') {
+              if (d == 'suite') {
                 console.log(domainByTrait[d]);
                 xDiscrete.domain(domainByTrait[d]);
                 xAxis.scale(xDiscrete);
@@ -376,7 +378,7 @@
             }),
           update => update
             .each(function (d) {
-              if (d == 'sepal length') {
+              if (d == 'suite') {
                 console.log(domainByTrait[d]);
                 xDiscrete.domain(domainByTrait[d]);
                 xAxis.scale(xDiscrete);
@@ -397,7 +399,7 @@
             .attr("class", "y axis")
             .attr("transform", function (d, i) { return "translate(0," + i * size + ")"; })
             .each(function (d) {
-              if (d == 'sepal length') {
+              if (d == 'suite') {
                 console.log(domainByTrait[d]);
                 yAxis.scale(yDiscrete);
                 yDiscrete.domain(domainByTrait[d]);
@@ -409,7 +411,7 @@
             }),
           update => update
             .each(function (d) {
-              if (d == 'sepal length') {
+              if (d == 'suite') {
                 console.log(domainByTrait[d]);
                 yAxis.scale(yDiscrete);
                 yDiscrete.domain(domainByTrait[d]);
@@ -432,7 +434,7 @@
             enter => enter
               .append("circle")
               .attr("cx", function (d) {
-                if (pos.x == 'sepal length') {
+                if (pos.x == 'suite') {
                   xDiscrete.domain(domainByTrait[pos.x]);
                   return xDiscrete(d[pos.x]) + xDiscrete.bandwidth() / 2;
                 } else {
@@ -442,7 +444,7 @@
               })
               .attr("id", function (d) { return d.id; })
               .attr("cy", function (d) {
-                if (pos.y == 'sepal length') {
+                if (pos.y == 'suite') {
                   yDiscrete.domain(domainByTrait[pos.y]);
                   return yDiscrete(d[pos.y]) + yDiscrete.bandwidth() / 2;
                 } else {
@@ -467,7 +469,7 @@
                   .attr("r", 6);  // Change size
               })
               .attr("cx", function (d) {
-                if (pos.x == 'sepal length') {
+                if (pos.x == 'suite') {
                   xDiscrete.domain(domainByTrait[pos.x]);
                   return xDiscrete(d[pos.x]) + xDiscrete.bandwidth() / 2;
                 } else {
@@ -477,9 +479,9 @@
               })
               .attr("r", 4)
               // .attr("id", function (d) { return d.id; })
-              .style("fill", function (d) { return color(d.species); })
+              .style("fill", function (d) { return color(d.status); })
               .attr("cy", function (d) {
-                if (pos.y == 'sepal length') {
+                if (pos.y == 'suite') {
                   yDiscrete.domain(domainByTrait[pos.y]);
                   return yDiscrete(d[pos.y]) + yDiscrete.bandwidth() / 2;
                 } else {
@@ -566,7 +568,11 @@
           .enter()
           .append("circle")
           .attr("cx", function (d) {
-            if (p.x == 'sepal length') {
+            if (p.x == 'suite') {
+              if (d.testTitle == 'test id 5' && this.x == 's') {
+                console.log('test id 5');
+                let a = 2;
+              }
               xDiscrete.domain(domainByTrait[p.x]);
               return xDiscrete(d[p.x]) + xDiscrete.bandwidth() / 2;
             } else {
@@ -576,9 +582,12 @@
           })
           .attr("r", 4)
           .attr("id", function (d) { return d.id; })
-          .style("fill", function (d) { return color(d.species); })
+          .style("fill", function (d) { return color(d.status); })
           .attr("cy", function (d) {
-            if (p.y == 'sepal length') {
+            if (p.y == 'suite') {
+              if (d.testTitle == 'test id 5') {
+                console.log('test id 5');
+              }
               yDiscrete.domain(domainByTrait[p.y]);
               return yDiscrete(d[p.y]) + yDiscrete.bandwidth() / 2;
             } else {
@@ -598,7 +607,7 @@
     }
 
     //initial state
-    d3.csv("flowers2 copy.csv", processRow).then(processData);
+    d3.csv("report.csv", processRow).then(processData);
   </script>
 </body>
 </meta>
