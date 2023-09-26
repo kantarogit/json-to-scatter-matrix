@@ -296,11 +296,11 @@
         selectedOnly = Array.from(selectedOnly).reduce((acc, obj) => {
           const existingObj = acc.find((t) =>
             t.__data__.species === obj.__data__.species &&
-            t.__data__["petal length"] === obj.__data__["petal length"] &&
-            t.__data__["petal weight"] === obj.__data__["petal weight"] &&
-            t.__data__["petal width"] === obj.__data__["petal width"] &&
-            t.__data__["sepal length"] === obj.__data__["sepal length"] &&
-            t.__data__["sepal width"] === obj.__data__["sepal width"]
+            t.__data__["file"] === obj.__data__["file"] &&
+            t.__data__["duration"] === obj.__data__["duration"] &&
+            t.__data__["linesOfCode"] === obj.__data__["linesOfCode"] &&
+            t.__data__["successPercentage"] === obj.__data__["successPercentage"] &&
+            t.__data__["suite"] === obj.__data__["suite"]
           );
           if (!existingObj) {
             acc.push(obj);
@@ -311,17 +311,16 @@
         console.log('selected only in brushend:');
         console.log(selectedOnly);
 
-
         items.data(selectedOnly)
           .join(
             enter => enter
               .append("li")
               .text(function (d) {
-                return d.__data__.species;
+                return d.__data__.testTitle;
               }),
             update => update
               .text(function (d) {
-                return d.__data__.species;
+                return d.__data__.testTitle;
               }),
             exit => exit.remove()
           );
@@ -347,7 +346,7 @@
           .data(traits)
           .join("text")
           .attr("transform", (d, i) => {
-            return `translate(${(traits.length - i - 1) * size},${i * size})`
+            return `translate(${(n - i - 1) * size},${i * size})`
           })
           .attr("x", padding)
           .attr("y", padding)
