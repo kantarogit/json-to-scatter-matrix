@@ -165,6 +165,7 @@
       switch (index) {
         case '1': return d3.csv("flowers2 copy.csv", processRow).then(processData);
         case '2': return d3.csv("flowers2 copy 2.csv", processRow).then(processData);
+        case '3': return d3.csv("flowers2copy3.csv", processRow).then(processData);
       }
     }
 
@@ -343,7 +344,9 @@
           .selectAll("text")
           .data(traits)
           .join("text")
-          .attr("transform", (d, i) => `translate(${i * size},${i * size})`)
+          .attr("transform", (d, i) => {
+            return `translate(${(traits.length - i - 1) * size},${i * size})`
+          })
           .attr("x", padding)
           .attr("y", padding)
           .attr("dy", ".71em")
@@ -464,10 +467,6 @@
                   .attr("r", 6);  // Change size
               })
               .attr("cx", function (d) {
-                // x.domain(domainByTrait[pos.x]);
-                // console.log('x dot');
-                // console.log(d[pos.x]);
-                // return x(d[pos.x]);
                 if (pos.x == 'sepal length') {
                   xDiscrete.domain(domainByTrait[pos.x]);
                   return xDiscrete(d[pos.x]) + xDiscrete.bandwidth() / 2;
@@ -480,8 +479,6 @@
               // .attr("id", function (d) { return d.id; })
               .style("fill", function (d) { return color(d.species); })
               .attr("cy", function (d) {
-                // y.domain(domainByTrait[pos.y]);
-                // return y(d[pos.y]);
                 if (pos.y == 'sepal length') {
                   yDiscrete.domain(domainByTrait[pos.y]);
                   return yDiscrete(d[pos.y]) + yDiscrete.bandwidth() / 2;
@@ -534,6 +531,8 @@
         .filter(function () {
           return d3.select(this).attr("style") == ''; // filter by single attribute
         });
+
+      if (currentSelection.empty()) return;
 
       const selection = Array.of(
         [Number.parseInt(currentSelection.attr("x")), Number.parseFloat(currentSelection.attr("y"))],
