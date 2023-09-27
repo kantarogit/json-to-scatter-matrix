@@ -131,7 +131,7 @@
     position: absolute;
     top: 240px;
     right: 900px;
-}
+  }
 
   .legend-item.disabled {
     opacity: 0.5;
@@ -211,7 +211,6 @@
 
       var traits = Object.keys(data[0]).filter(function (d) {
         return d !== "testTitle" && d !== "file" && d !== "status"
-        //&& d !== "id";
       });
 
       //todo change this in cells titles
@@ -367,7 +366,6 @@
       var svg = d3.select("svg");
 
       if (svg.empty()) {
-        console.log('if empty svg');
         var svg = d3.select("body").append("svg")
           .attr("width", size * n + padding)
           .attr("height", size * n + padding)
@@ -378,7 +376,10 @@
         const statusValues = [...new Set(data.map(item => item.status))];
 
         // Create an SVG element for the legend top left of the chart
-        const legend = d3.select("body").append("svg").classed('legend', true).append("g")
+        const legend = d3.select("body")
+          .append("svg")
+          .classed('legend', true)
+          .append("g")
           .attr("id", "legend")
           .attr("transform", "translate(20, 20)");
 
@@ -536,7 +537,6 @@
               })
               .style("fill", function (d) { return color(d.species); })
               .attr("r", 6)
-              // .style("opacity", 1)
               .transition().duration(1000)
               .attr("r", 4)
               .style("opacity", 1)
@@ -651,10 +651,6 @@
           .append("circle")
           .attr("cx", function (d) {
             if (p.x == 'suite') {
-              if (d.testTitle == 'test id 5' && this.x == 's') {
-                console.log('test id 5');
-                let a = 2;
-              }
               xDiscrete.domain(domainByTrait[p.x]);
               return xDiscrete(d[p.x]) + xDiscrete.bandwidth() / 2;
             } else {
@@ -667,9 +663,6 @@
           .style("fill", function (d) { return color(d.status); })
           .attr("cy", function (d) {
             if (p.y == 'suite') {
-              if (d.testTitle == 'test id 5') {
-                console.log('test id 5');
-              }
               yDiscrete.domain(domainByTrait[p.y]);
               return yDiscrete(d[p.y]) + yDiscrete.bandwidth() / 2;
             } else {
