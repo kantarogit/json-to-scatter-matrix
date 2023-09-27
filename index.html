@@ -97,7 +97,7 @@
   #list {
     width: auto;
     height: auto;
-    overflow-y: scroll;
+    /* overflow-y: scroll; */
     float: left;
     margin-right: 800px;
     background-color: #f5f5f5;
@@ -107,8 +107,10 @@
 
   #selectedItems {
     list-style: none;
+    overflow-y: scroll;
     padding: 0;
     margin: 0;
+    max-height: 1250px;
   }
 
   #selectedItems li {
@@ -244,6 +246,7 @@
 
       // Clear the previously-active brush, if any.
       function brushstart(event, p) {
+        d3.selectAll(".legend-item").classed("disabled", false);
         if (brushCell !== this) {
           d3.select(brushCell).call(brush.move, null);
           if (p.x == 'suite') {
@@ -265,6 +268,9 @@
       function brushmove(event, p) {
         const selection = event.selection;
         if (selection != null) {
+          //reset the state of the legend
+          d3.selectAll(".legend-item").classed("disabled", false);
+
           var e = selection;
           svg.selectAll("circle").classed("hidden", function (d) {
 
@@ -313,9 +319,8 @@
         }
       }
 
-      // If the brush is empty, select all circles.
-      function brushend(event) {
-        var selectedOnly = svg.selectAll("circle:not(.hidden)");
+      function updateTable(circles) {
+        var selectedOnly = circles;
         console.log('selected only:');
         console.log(selectedOnly);
         var myList = d3.select("#selectedItems");
@@ -324,12 +329,13 @@
         existingObj = [];
         selectedOnly = Array.from(selectedOnly).reduce((acc, obj) => {
           const existingObj = acc.find((t) =>
-            t.__data__.species === obj.__data__.species &&
+            t.__data__["priority"] === obj.__data__["priority"] &&
             t.__data__["file"] === obj.__data__["file"] &&
             t.__data__["duration"] === obj.__data__["duration"] &&
             t.__data__["linesOfCode"] === obj.__data__["linesOfCode"] &&
             t.__data__["successPercentage"] === obj.__data__["successPercentage"] &&
-            t.__data__["suite"] === obj.__data__["suite"]
+            t.__data__["suite"] === obj.__data__["suite"] && 
+            t.__data__["testTitle"] === obj.__data__["testTitle"]
           );
           if (!existingObj) {
             acc.push(obj);
@@ -358,7 +364,11 @@
               }),
             exit => exit.remove()
           );
+      }
 
+      // If the brush is empty, select all circles.
+      function brushend(event) {
+        updateTable(svg.selectAll("circle:not(.hidden)"));
         if (event.selection === null) svg.selectAll(".hidden").classed("hidden", false);
       }
 
@@ -411,13 +421,26 @@
             return d;
           })
           .on("click", function (event, d) {
-            const selected = d;
+            const state = d;
             // Toggle the visibility of the circles with the selected status value
             var circles = svg.selectAll("circle")
               .filter(function (d) {
-                return d.status === selected;
+                return d.status === state;
               });
-            circles.classed("hidden", !circles.classed("hidden"));
+
+            //get the current state of the legend item
+            var currentState = d3.select(this.parentNode).classed("disabled");
+            //if the current state is disabled then disable the circles
+            if (!currentState) {
+              circles.classed("hidden", true);
+            } else {
+              circles.classed("hidden", false);
+            }
+
+            // select all the circles minus the circles switched off
+            circles = svg.selectAll("circle:not(.hidden)");
+
+
             d3.select(this.parentNode)
               .classed("disabled", !d3.select(this.parentNode).classed("disabled"));
             updateTable(circles);
