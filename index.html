@@ -272,51 +272,56 @@
           d3.selectAll(".legend-item").classed("disabled", false);
 
           var e = selection;
-          svg.selectAll("circle").classed("hidden", function (d) {
-
-            let xStartValue, xEndValue, yStartValue, yEndValue, xCircle, yCircle;
-
-            xStartValue = x.invert(e[0][0]);
-            xEndValue = x.invert(e[1][0]);
-            yStartValue = y.invert(e[0][1]);
-            yEndValue = y.invert(e[1][1]);
-
-            xCircle = d[p.x];
-            yCircle = d[p.y];
-
-            if (p.x == 'suite' && p.x != p.y) {
-
-              xStartValue = e[0][0];
-              xEndValue = e[1][0];
-
-              xCircle = xDiscrete(d[p.x]) + xDiscrete.bandwidth() / 2;
-            } else if (p.y == 'suite' && p.x != p.y) {
-
-              yStartValue = e[0][1];
-              yEndValue = e[1][1];
-
-              yCircle = yDiscrete(d[p.y]) + yDiscrete.bandwidth() / 2;
-            } else if (p.y == 'suite' && p.x == 'suite') {
-
-              xStartValue = e[0][0];
-              xEndValue = e[1][0];
-              yStartValue = e[0][1];
-              yEndValue = e[1][1];
-
-              xCircle = xDiscrete(d[p.x]) + xDiscrete.bandwidth() / 2;
-              yCircle = yDiscrete(d[p.y]) + yDiscrete.bandwidth() / 2;
-            }
-
-            if (((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
-              ((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue)) ||
-              ((xStartValue >= xCircle && xCircle >= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
-              ((xStartValue >= xCircle && xCircle >= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue))) {
-              return false;
-            } else {
-              return true;
-            }
-          });
+          selectCircles(e, p);
         }
+      }
+
+      //select the circles based on the brush selection e and cell p
+      function selectCircles(e, p) {
+        svg.selectAll("circle").classed("hidden", function (d) {
+
+          let xStartValue, xEndValue, yStartValue, yEndValue, xCircle, yCircle;
+
+          xStartValue = x.invert(e[0][0]);
+          xEndValue = x.invert(e[1][0]);
+          yStartValue = y.invert(e[0][1]);
+          yEndValue = y.invert(e[1][1]);
+
+          xCircle = d[p.x];
+          yCircle = d[p.y];
+
+          if (p.x == 'suite' && p.x != p.y) {
+
+            xStartValue = e[0][0];
+            xEndValue = e[1][0];
+
+            xCircle = xDiscrete(d[p.x]) + xDiscrete.bandwidth() / 2;
+          } else if (p.y == 'suite' && p.x != p.y) {
+
+            yStartValue = e[0][1];
+            yEndValue = e[1][1];
+
+            yCircle = yDiscrete(d[p.y]) + yDiscrete.bandwidth() / 2;
+          } else if (p.y == 'suite' && p.x == 'suite') {
+
+            xStartValue = e[0][0];
+            xEndValue = e[1][0];
+            yStartValue = e[0][1];
+            yEndValue = e[1][1];
+
+            xCircle = xDiscrete(d[p.x]) + xDiscrete.bandwidth() / 2;
+            yCircle = yDiscrete(d[p.y]) + yDiscrete.bandwidth() / 2;
+          }
+
+          if (((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
+            ((xStartValue <= xCircle && xCircle <= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue)) ||
+            ((xStartValue >= xCircle && xCircle >= xEndValue) && (yStartValue <= yCircle && yCircle <= yEndValue)) ||
+            ((xStartValue >= xCircle && xCircle >= xEndValue) && (yStartValue >= yCircle && yCircle >= yEndValue))) {
+            return false;
+          } else {
+            return true;
+          }
+        });
       }
 
       function updateTable(circles) {
@@ -334,7 +339,7 @@
             t.__data__["duration"] === obj.__data__["duration"] &&
             t.__data__["linesOfCode"] === obj.__data__["linesOfCode"] &&
             t.__data__["successPercentage"] === obj.__data__["successPercentage"] &&
-            t.__data__["suite"] === obj.__data__["suite"] && 
+            t.__data__["suite"] === obj.__data__["suite"] &&
             t.__data__["testTitle"] === obj.__data__["testTitle"]
           );
           if (!existingObj) {
@@ -423,10 +428,23 @@
           .on("click", function (event, d) {
             const state = d;
             // Toggle the visibility of the circles with the selected status value
-            var circles = svg.selectAll("circle")
-              .filter(function (d) {
-                return d.status === state;
-              });
+            // var circles = svg.selectAll("circle:not(.hidden)")
+            //   .filter(function (d) {
+            //     return d.status === state;
+            //   });
+            var circles;
+            if (!currentState) {
+              circles = svg.selectAll("circle:not(.hidden)")
+                .filter(function (d) {
+                  return d.status === state;
+                });
+            } else {
+
+              circles = svg.selectAll("circle.hidden")
+                .filter(function (d) {
+                  return d.status === state;
+                });
+            }
 
             //get the current state of the legend item
             var currentState = d3.select(this.parentNode).classed("disabled");
@@ -440,6 +458,14 @@
             // select all the circles minus the circles switched off
             circles = svg.selectAll("circle:not(.hidden)");
 
+            //get the current selection of the circles
+            var currentSelection = d3.selectAll(".selection")
+              .filter(function () {
+                return d3.select(this).attr("style") == ''; // filter by single attribute
+              });
+            //currentSelection.nodes()[0].parentNode
+
+            selectCircles(currentSelection.nodes()[0].parentNode, currentSelection.nodes()[0].parentNode.__data__);
 
             d3.select(this.parentNode)
               .classed("disabled", !d3.select(this.parentNode).classed("disabled"));
