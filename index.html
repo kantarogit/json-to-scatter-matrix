@@ -4,6 +4,21 @@
   svg {
     font: 10px sans-serif;
     padding: 10px;
+    position: absolute;
+    top: 50px;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+  }
+
+  .legend {
+    position: absolute;
+    top: 0%;
+    left: 2000px;
+    bottom: 80%;
+    right: 0px;
+    margin: auto;
   }
 
   .axis,
@@ -45,8 +60,12 @@
   }
 
   .slider {
-    -webkit-appearance: none;
-    width: 100%;
+    position: absolute;
+    top: 1%;
+    left: 50%;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    width: 37%;
     height: 25px;
     background: #d3d3d3;
     outline: none;
@@ -76,10 +95,10 @@
   }
 
   #list {
-    width: 300px;
-    height: 1080px;
+    width: auto;
+    height: auto;
     overflow-y: scroll;
-    float: right;
+    float: left;
     margin-right: 800px;
     background-color: #f5f5f5;
     border-radius: 5px;
@@ -96,6 +115,7 @@
     padding: 10px;
     border-bottom: 1px solid #ddd;
     font-size: 14px;
+    font-family: 'Courier New', Courier, monospace;
     color: #333;
   }
 
@@ -106,6 +126,16 @@
   #selectedItems li:hover {
     background-color: #7489fd;
   }
+
+  #legend {
+    position: absolute;
+    top: 240px;
+    right: 900px;
+}
+
+  .legend-item.disabled {
+    opacity: 0.5;
+  }
 </style>
 
 <body>
@@ -113,6 +143,7 @@
     <input type="range" min="1" max="40" value="1" step="1" class="slider" id="myRange">
     <p>Value: <span id="demo"></span></p>
   </div>
+
   <!-- div with list item to show data in a rows, data source would be a Array in the script -->
   <div id="list">
     <ul id="selectedItems">
@@ -311,16 +342,21 @@
         console.log('selected only in brushend:');
         console.log(selectedOnly);
 
+        //sort selectedOnly by the suite name
+        selectedOnly.sort(function (a, b) {
+          return a.__data__.suite.localeCompare(b.__data__.suite);
+        });
+
         items.data(selectedOnly)
           .join(
             enter => enter
               .append("li")
               .text(function (d) {
-                return d.__data__.testTitle;
+                return d.__data__.suite + '>' + d.__data__.testTitle;
               }),
             update => update
               .text(function (d) {
-                return d.__data__.testTitle;
+                return d.__data__.suite + '>' + d.__data__.testTitle;
               }),
             exit => exit.remove()
           );
@@ -338,6 +374,54 @@
           .attr("height", size * n + padding)
           .append("g")
           .attr("transform", "translate(" + padding + "," + padding / 2 + ")");
+
+        // Define the status values based on the data in the CSV file withint the status column
+        const statusValues = [...new Set(data.map(item => item.status))];
+
+        // Create an SVG element for the legend top left of the chart
+        const legend = d3.select("body").append("svg").classed('legend', true).append("g")
+          .attr("id", "legend")
+          .attr("transform", "translate(20, 20)");
+
+        // Add a group element for each status value
+        const legendItems = legend.selectAll(".legend-item")
+          .data(statusValues)
+          .enter()
+          .append("g")
+          .attr("class", "legend-item")
+          .attr("transform", function (d, i) {
+            return "translate(0," + i * 20 + ")";
+          });
+
+        // Add a colored rectangle for each status value
+        legendItems.append("rect")
+          .attr("x", 0)
+          .attr("y", 0)
+          .attr("width", 10)
+          .attr("height", 10)
+          .style("fill", function (d) {
+            return color(d);
+          });
+
+        // Add a text label for each status value
+        legendItems.append("text")
+          .attr("x", 20)
+          .attr("y", 10)
+          .text(function (d) {
+            return d;
+          })
+          .on("click", function (event, d) {
+            const selected = d;
+            // Toggle the visibility of the circles with the selected status value
+            var circles = svg.selectAll("circle")
+              .filter(function (d) {
+                return d.status === selected;
+              });
+            circles.classed("hidden", !circles.classed("hidden"));
+            d3.select(this.parentNode)
+              .classed("disabled", !d3.select(this.parentNode).classed("disabled"));
+            updateTable(circles);
+          });
 
         svg.append("g")
           .style("font", "bold 10px sans-serif")
@@ -595,8 +679,6 @@
             }
           });
       }
-
-
     }
 
     function cross(a, b) {
