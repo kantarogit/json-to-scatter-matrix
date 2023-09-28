@@ -428,23 +428,10 @@
           .on("click", function (event, d) {
             const state = d;
             // Toggle the visibility of the circles with the selected status value
-            // var circles = svg.selectAll("circle:not(.hidden)")
-            //   .filter(function (d) {
-            //     return d.status === state;
-            //   });
-            var circles;
-            if (!currentState) {
-              circles = svg.selectAll("circle:not(.hidden)")
-                .filter(function (d) {
-                  return d.status === state;
-                });
-            } else {
-
-              circles = svg.selectAll("circle.hidden")
-                .filter(function (d) {
-                  return d.status === state;
-                });
-            }
+            var circles = svg.selectAll("circle")
+              .filter(function (d) {
+                return d.status === state;
+              });
 
             //get the current state of the legend item
             var currentState = d3.select(this.parentNode).classed("disabled");
@@ -453,19 +440,26 @@
               circles.classed("hidden", true);
             } else {
               circles.classed("hidden", false);
+              let currentSelection = d3.selectAll(".selection")
+                .filter(function () {
+                  return d3.select(this).attr("style") == ''; // filter by single attribute
+                });
+
+              if (!currentSelection.empty()) {
+
+                const selection = Array.of(
+                  [Number.parseInt(currentSelection.attr("x")), Number.parseFloat(currentSelection.attr("y"))],
+                  [
+                    Number.parseInt(currentSelection.attr("x")) + Number.parseInt(currentSelection.attr("width")),
+                    Number.parseInt(currentSelection.attr("y")) + Number.parseInt(currentSelection.attr("height"))
+                  ],
+                );
+
+                selectCircles(selection, currentSelection.nodes()[0].parentNode.__data__);
+              }
             }
 
-            // select all the circles minus the circles switched off
             circles = svg.selectAll("circle:not(.hidden)");
-
-            //get the current selection of the circles
-            var currentSelection = d3.selectAll(".selection")
-              .filter(function () {
-                return d3.select(this).attr("style") == ''; // filter by single attribute
-              });
-            //currentSelection.nodes()[0].parentNode
-
-            selectCircles(currentSelection.nodes()[0].parentNode, currentSelection.nodes()[0].parentNode.__data__);
 
             d3.select(this.parentNode)
               .classed("disabled", !d3.select(this.parentNode).classed("disabled"));
