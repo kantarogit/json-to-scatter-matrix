@@ -9,7 +9,20 @@
     left: 0;
     bottom: 0;
     right: 0;
+    z-index: 1;
     margin: auto;
+  }
+
+  .tooltip {
+    background-color: black;
+    border: none;
+    border-radius: 5px;
+    padding: 15px;
+    min-width: fit-content;
+    max-width: fit-content;
+    text-align: left;
+    color: white;
+    z-index: 2;
   }
 
   .legend {
@@ -145,6 +158,9 @@
     <input type="range" min="1" max="40" value="1" step="1" class="slider" id="myRange">
   </div>
 
+  <div id="svg-element">
+  </div>
+
   <!-- div with list item to show data in a rows, data source would be a Array in the script -->
   <div id="list">
     <ul id="selectedItems">
@@ -183,12 +199,20 @@
 
     // bottom ticks, 6 columns per cell
     var xAxis = d3.axisBottom()
-      // .scale(x)
+      .tickFormat(function (d) {
+        var truncatedText = d.toString().substring(0, 3);
+        var fullText = d.toString();
+        return truncatedText + (truncatedText !== fullText ? "..." : "");
+      })
       .ticks(6);
 
     //left ticks, 6 rows per cell
     var yAxis = d3.axisLeft()
-      // .scale(y)
+      .tickFormat(function (d) {
+        var truncatedText = d.toString().substring(0, 3);
+        var fullText = d.toString();
+        return truncatedText + (truncatedText !== fullText ? "..." : "");
+      })
       .ticks(6);
 
     var color = d3.scaleOrdinal(d3.schemeCategory10);
@@ -205,6 +229,44 @@
 
       row[columnKeys[0]] = row[columnKeys[0]].trim().toLowerCase()
       return row;
+    }
+
+    // create a tooltip
+    var tooltip = d3.select("#svg-element")
+      .append("div")
+      .style("opacity", 0)
+      .style("position", "absolute")
+      .attr("class", "tooltip")
+      .style("background-color", "black")
+      .style("border", "solid")
+      .style("border-width", "2px")
+      .style("border-radius", "5px")
+      .style("padding", "5px");
+
+    var mouseover = function (event, d) {
+      tooltip
+        .transition()
+        .duration(1000)
+        .style("opacity", 1)
+      d3.select(this)
+        .style("stroke", "black")
+        .style('background-color', 'white')
+        .style("opacity", 1)
+    }
+    var mousemove = function (event, d) {
+      tooltip
+        .html(d)
+        .style("left", (event.pageX - tooltip.node().offsetWidth - 10) + "px")
+        .style("top", (event.pageY - tooltip.node().offsetHeight / 2) + "px");
+    }
+    var mouseleave = function (event, d) {
+      tooltip
+        .transition()
+        .duration(200)
+        .style("opacity", 0)
+      d3.select(this)
+        .style("stroke", "none")
+        .style("opacity", 0.8)
     }
 
     function processData(data) {
@@ -373,7 +435,7 @@
       }
 
       // If the brush is empty, select all circles.
-      function brushend(event) {  
+      function brushend(event) {
         if (event.selection === null) {
           svg.selectAll(".hidden").classed("hidden", false);
         }
@@ -384,7 +446,7 @@
       var svg = d3.select("svg");
 
       if (svg.empty()) {
-        var svg = d3.select("body").append("svg")
+        var svg = d3.select("#svg-element").append("svg")
           .attr("width", size * n + padding)
           .attr("height", size * n + padding)
           .append("g")
@@ -430,7 +492,7 @@
           })
           .on("click", function (event, d) {
             const state = d;
-            
+
             // Toggle the visibility of the circles with the selected status value
             var circles = svg.selectAll("circle")
               .filter(function (d) {
@@ -581,6 +643,16 @@
             }),
           exit => exit.transition().remove()
         )
+
+      svg.selectAll(".y.axis").selectAll("text")
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseleave", mouseleave)
+
+      svg.selectAll(".x.axis").selectAll("text")
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseleave", mouseleave)
 
       p.forEach((pos) => {
 
