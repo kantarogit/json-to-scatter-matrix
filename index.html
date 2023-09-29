@@ -373,9 +373,11 @@
       }
 
       // If the brush is empty, select all circles.
-      function brushend(event) {
+      function brushend(event) {  
+        if (event.selection === null) {
+          svg.selectAll(".hidden").classed("hidden", false);
+        }
         updateTable(svg.selectAll("circle:not(.hidden)"));
-        if (event.selection === null) svg.selectAll(".hidden").classed("hidden", false);
       }
 
       //clear svg after data source change
@@ -469,11 +471,6 @@
                   .filter(circle => invertCircles
                     .nodes().map(c => c.__data__)
                     .includes(circle.__data__));
-                // inSelectionCircles.nodes()
-                //   .map(circle => circle.__data__)
-                //   .filter(circle => invertCircles
-                //     .nodes().map(c => c.__data__)
-                //     .includes(circle));
 
                 const legendOffItems = d3.selectAll('.legend-item')
                   .filter(function () {
