@@ -279,7 +279,6 @@
       //select the circles based on the brush selection e and cell p
       function selectCircles(e, p) {
         svg.selectAll("circle").classed("hidden", function (d) {
-
           let xStartValue, xEndValue, yStartValue, yEndValue, xCircle, yCircle;
 
           xStartValue = x.invert(e[0][0]);
@@ -322,6 +321,8 @@
             return true;
           }
         });
+
+        return svg.selectAll("circle:not(.hidden)");
       }
 
       function updateTable(circles) {
@@ -427,6 +428,7 @@
           })
           .on("click", function (event, d) {
             const state = d;
+            
             // Toggle the visibility of the circles with the selected status value
             var circles = svg.selectAll("circle")
               .filter(function (d) {
@@ -439,7 +441,7 @@
             if (!currentState) {
               circles.classed("hidden", true);
             } else {
-              circles.classed("hidden", false);
+              // svg.selectAll("circle").classed("hidden", true);
               let currentSelection = d3.selectAll(".selection")
                 .filter(function () {
                   return d3.select(this).attr("style") == ''; // filter by single attribute
@@ -448,14 +450,47 @@
               if (!currentSelection.empty()) {
 
                 const selection = Array.of(
-                  [Number.parseInt(currentSelection.attr("x")), Number.parseFloat(currentSelection.attr("y"))],
+                  [Number.parseFloat(currentSelection.attr("x")), Number.parseFloat(currentSelection.attr("y"))],
                   [
-                    Number.parseInt(currentSelection.attr("x")) + Number.parseInt(currentSelection.attr("width")),
-                    Number.parseInt(currentSelection.attr("y")) + Number.parseInt(currentSelection.attr("height"))
+                    Number.parseFloat(currentSelection.attr("x")) + Number.parseFloat(currentSelection.attr("width")),
+                    Number.parseFloat(currentSelection.attr("y")) + Number.parseFloat(currentSelection.attr("height"))
                   ],
                 );
 
-                selectCircles(selection, currentSelection.nodes()[0].parentNode.__data__);
+                let inSelectionCircles = selectCircles(selection, currentSelection.nodes()[0].parentNode.__data__);
+                let invertCircles = svg.selectAll("circle")
+                  .filter(function (d) {
+                    return d.status !== state;
+                  });
+
+                //find the intersection between inSelectionCircles and invertCircles
+                let intersectionCircles = inSelectionCircles
+                  .nodes()
+                  .filter(circle => invertCircles
+                    .nodes().map(c => c.__data__)
+                    .includes(circle.__data__));
+                // inSelectionCircles.nodes()
+                //   .map(circle => circle.__data__)
+                //   .filter(circle => invertCircles
+                //     .nodes().map(c => c.__data__)
+                //     .includes(circle));
+
+                const legendOffItems = d3.selectAll('.legend-item')
+                  .filter(function () {
+                    return d3.select(this).classed('disabled')
+                  })
+                  .nodes()
+                  .map(node => node.__data__)
+                  .filter(node => node !== state);
+
+                intersectionCircles.forEach(circle => {
+                  if (legendOffItems.includes(circle.__data__.status)) {
+                    d3.select(circle).classed("hidden", true);
+                  }
+                });
+                //hide the circles in intersection if their status is not equal to the state
+              } else {
+                circles.classed("hidden", false);
               }
             }
 
